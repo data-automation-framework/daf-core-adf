@@ -3,11 +3,11 @@
 
 using System;
 using System.Globalization;
-using Daf.Core.Adf.IonStructure;
-using Daf.Core.Sdk;
-using Daf.Core.Sdk.Ion.Reader;
+using Plasma.Core.Plugins.Adf.IonStructure;
+using Plasma.Core.Sdk;
+using Plasma.Core.Sdk.Ion.Reader;
 
-namespace Daf.Core.Adf
+namespace Plasma.Core.Plugins.Adf
 {
 	public class AdfPlugin : IPlugin
 	{
@@ -31,8 +31,8 @@ namespace Daf.Core.Adf
 
 				foreach (AzureDataFactoryProject adfProj in adfRootNode.AzureDataFactoryProjects)
 				{
-					AdfGenerator.CreateAzureDataFactoryJson(adfProj);
-					AdfGenerator.CreatePowerShellDeploymentScript(adfProj.Name);
+					AdfGenerator.DefineAzureDataFactoryJson(adfProj);
+					AdfGenerator.DefinePowerShellDeploymentScript(adfProj.Name);
 				}
 
 				azureDataFactoryProjectTimer.Stop();

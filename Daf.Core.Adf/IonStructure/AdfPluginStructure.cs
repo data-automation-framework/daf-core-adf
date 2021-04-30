@@ -2,10 +2,10 @@
 // Copyright © 2021 Oscar Björhn, Petter Löfgren and contributors
 
 using System.Collections.Generic;
-using Daf.Core.Sdk;
+using Plasma.Core.Sdk;
 
 #nullable disable
-namespace Daf.Core.Adf.IonStructure
+namespace Plasma.Core.Plugins.Adf.IonStructure
 {
 	/// <summary>
 	/// Root node for Azure Data Factory projects.

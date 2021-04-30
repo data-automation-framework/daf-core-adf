@@ -1,0 +1,21 @@
+﻿// SPDX-License-Identifier: MIT
+// Copyright © 2021 Oscar Björhn, Petter Löfgren and contributors
+
+using Plasma.Core.Plugins.Adf.IonStructure;
+using Plasma.Core.Plugins.Adf.JsonStructure;
+
+namespace Adf.JsonStructure.Activities
+{
+	public class LookupJson : ActivityJson
+	{
+		public PolicyJson Policy { get; set; }
+
+		public LookupJson() : base()
+		{
+			Policy = new();
+			UserProperties = System.Array.Empty<string>();
+
+			Type = ActivityTypeEnum.Lookup.ToString();
+		}
+	}
+}

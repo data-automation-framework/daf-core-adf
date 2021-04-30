@@ -3,11 +3,12 @@
 
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using Adf.JsonStructure;
 using AzureDataFactoryProjects.JsonConverters;
-using Daf.Core.Adf.IonStructure;
+using Plasma.Core.Plugins.Adf.IonStructure;
 
 #nullable disable
-namespace Daf.Core.Adf.JsonStructure
+namespace Plasma.Core.Plugins.Adf.JsonStructure
 {
 	public class ProjectJson
 	{
@@ -70,38 +71,6 @@ namespace Daf.Core.Adf.JsonStructure
 		}
 	}
 
-	public class ActivityJson
-	{
-		public string Name { get; set; }
-		public string Type { get; set; }
-		public List<DependsOnJson> DependsOn { get; set; }
-		public PolicyJson Policy { get; set; }
-		public string[] UserProperties { get; set; }
-		public TypePropertyJson TypeProperties { get; set; }
-		public List<InputJson> Inputs { get; set; }
-		public List<OutputJson> Outputs { get; set; }
-		public LinkedServiceNameJson LinkedServiceName { get; set; }
-
-		public ActivityJson()
-		{
-			DependsOn = new List<DependsOnJson>();
-			Inputs = new List<InputJson>();
-			Outputs = new List<OutputJson>();
-			UserProperties = new string[0];
-		}
-	}
-
-	public class DependsOnJson
-	{
-		public string Activity { get; set; }
-		public List<string> DependencyConditions { get; set; }
-
-		public DependsOnJson()
-		{
-			DependencyConditions = new List<string>();
-		}
-	}
-
 	public class PolicyJson
 	{
 		public string TimeOut { get; set; }
@@ -139,39 +108,12 @@ namespace Daf.Core.Adf.JsonStructure
 		}
 	}
 
-	public class TypePropertyJson
-	{
-		public string FunctionName { get; set; }
-		public string Method { get; set; }
-		public string Url { get; set; }
-		public object Body { get; set; }
-		public SourceJson Source { get; set; }
-		public SinkJson Sink { get; set; }
-		public TranslatorJson Translator { get; set; }
-		public bool? EnableStaging { get; set; }
-		public string StoredProcedureName { get; set; }
-		public Dictionary<string, object> StoredProcedureParameters { get; set; }
-		public LookupDataSetJson Dataset { get; set; }
-		public ExpressionJson Expression { get; set; }
-		public List<ActivityJson> Activities { get; set; }
-		public List<ActivityJson> IfFalseActivities { get; set; }
-		public List<ActivityJson> IfTrueActivities { get; set; }
-		public ExecutePipelineJson Pipeline { get; set; }
-		[JsonConverter(typeof(PipelineParameterConverter))]
-		public List<ParameterJson> Parameters { get; set; }
-		public bool WaitOnCompletion { get; set; }
-		public string TimeOut { get; set; }
-		public int WaitTimeInSeconds { get; set; }
-		public string VariableName { get; set; }
-		public string Value { get; set; }
-	}
-
-	public class ExecutePipelineJson
+	public class PipelineReferenceJson
 	{
 		public string ReferenceName { get; set; }
 		public string Type { get; set; }
 
-		public ExecutePipelineJson()
+		public PipelineReferenceJson()
 		{
 			Type = "PipelineReference";
 		}
@@ -219,27 +161,6 @@ namespace Daf.Core.Adf.JsonStructure
 		public string Type { get; set; }
 	}
 
-	public class SourceJson
-	{
-		public string Type { get; set; }
-		public string HttpRequestTimeout { get; set; }
-		public string RequestInterval { get; set; }
-		public string RequestMethod { get; set; }
-		public StoreSettingsJson StoreSettings { get; set; }
-		public string SqlReaderQuery { get; set; }
-		public object Query { get; set; }
-		public string QueryTimeout { get; set; }
-		public Dictionary<string, object> AdditionalHeaders { get; set; }
-		public Dictionary<string, string> PaginationRules { get; set; }
-
-		public SourceJson()
-		{
-			HttpRequestTimeout = "00:10:00";
-			RequestInterval = "00.00:00:00.010";
-			RequestMethod = "GET";
-		}
-	}
-
 	public class StoreSettingsJson
 	{
 		public string Type { get; set; }
@@ -252,22 +173,7 @@ namespace Daf.Core.Adf.JsonStructure
 		}
 	}
 
-	public class SinkJson
-	{
-		public string Type { get; set; }
-		public object StoreSettings { get; set; }
-		public object FormatSettings { get; set; }
-
-		public SinkJson()
-		{
-			StoreSettings = new { Type = "AzureBlobStorageWriteSettings" };
-			FormatSettings = new {
-				Type = "JsonWriteSettings",
-				FilePattern = "arrayOfObjects",
-				QuoteAllText = true
-			};
-		}
-	}
+	
 
 	public class InputJson
 	{

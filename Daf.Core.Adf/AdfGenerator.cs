@@ -5,16 +5,16 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.Json;
-using Daf.Core.Adf.Generators;
-using Daf.Core.Adf.IonStructure;
-using Daf.Core.Adf.JsonStructure;
-using Daf.Core.Sdk;
+using Plasma.Core.Plugins.Adf.Generators;
+using Plasma.Core.Plugins.Adf.IonStructure;
+using Plasma.Core.Plugins.Adf.JsonStructure;
+using Plasma.Core.Sdk;
 
-namespace Daf.Core.Adf
+namespace Plasma.Core.Plugins.Adf
 {
 	public static class AdfGenerator
 	{
-		public static void CreateAzureDataFactoryJson(AzureDataFactoryProject projectNode)
+		public static void DefineAzureDataFactoryJson(AzureDataFactoryProject projectNode)
 		{
 			ProjectJson projectJson = ProjectGenerator.SetProjectJson(projectNode);
 
@@ -46,76 +46,76 @@ namespace Daf.Core.Adf
 			}
 		}
 
-		public static void CreatePowerShellDeploymentScript(string projectName)
+		public static void DefinePowerShellDeploymentScript(string projectName)
 		{
-			StringBuilder stringBuilder = new();
+			StringBuilder builder = new();
 
-			stringBuilder.AppendLine($"\n$metadata = Get-Content -Raw -Path \"..\\..\\..\\..\\Metadata\\Model.json\" | ConvertFrom-Json");
-			stringBuilder.AppendLine($"\n$subscription = $metadata.DataWarehouse.AzureSubscriptionId");
-			stringBuilder.AppendLine($"\n$tenantId = $metadata.DataWarehouse.AzureTenantId");
-			stringBuilder.AppendLine($"\n$resourceGroup = $metadata.DataWarehouse.AzureResourceGroup");
-			stringBuilder.AppendLine($"\n$dataFactoryName = $metadata.DataWarehouse.AzureDataFactoryName");
-			stringBuilder.AppendLine($"\n");
-			stringBuilder.AppendLine($"\n### Authenticate ###");
-			stringBuilder.AppendLine($"\n$user = Connect-AzAccount -Tenant $tenantId -Subscription $subscription;");
-			stringBuilder.AppendLine($"\n$context = Get-AzContext");
-			stringBuilder.AppendLine($"\n$dataFactory = Get-AzDataFactoryV2 -ResourceGroupName $resourceGroup -Name $dataFactoryName -ErrorAction SilentlyContinue");
-			stringBuilder.AppendLine($"\n$absJsonPath = \".\\\" | Resolve-Path");
-			stringBuilder.AppendLine($"\n");
-			stringBuilder.AppendLine($"\n\"\"");
-			stringBuilder.AppendLine($"\n\"You are deploying the following:\"");
-			stringBuilder.AppendLine($"\n\"Subscription: $($subscription)\"");
-			stringBuilder.AppendLine($"\n\"ResourceGroup: $($resourceGroup)\"");
-			stringBuilder.AppendLine($"\n\"DataFactory: $($dataFactoryName)\"");
-			stringBuilder.AppendLine($"\n\"TenantId: $($tenantId)\"");
-			stringBuilder.AppendLine($"\n\"Using .json files at $($absJsonPath)\"");
-			stringBuilder.AppendLine($"\n$entry = Read-Host -Prompt \"Do you wish to continue? (y/n)\"");
-			stringBuilder.AppendLine($"\n");
-			stringBuilder.AppendLine($"\nif ($entry -ne \"y\" -or $entry -ne \"Y\") {{");
-			stringBuilder.AppendLine($"\n    Return;");
-			stringBuilder.AppendLine($"\n}}");
-			stringBuilder.AppendLine($"\n");
-			stringBuilder.AppendLine($"\nif ($dataFactory -eq $null) {{");
-			stringBuilder.AppendLine($"\n    \"Creating data factory $dataFactoryName...\"");
-			stringBuilder.AppendLine($"\n}}");
-			stringBuilder.AppendLine($"\n");
-			stringBuilder.AppendLine($"\n\"\"");
-			stringBuilder.AppendLine($"\n\"- Deploying DataSets -\"");
-			stringBuilder.AppendLine($"\n\"\"");
-			stringBuilder.AppendLine($"\n$dir = \".\\DataSets\"");
-			stringBuilder.AppendLine($"\nGet-ChildItem $dir -Filter *.json | Foreach-Object {{");
-			stringBuilder.AppendLine($"\n    $json = Get-Content -Raw -Path \"$($dir)\\$($_)\" | ConvertFrom-Json");
-			stringBuilder.AppendLine($"\n    \"Deploying $($json.Name)...\"");
-			stringBuilder.AppendLine($"\n    try {{");
-			stringBuilder.AppendLine($"\n        $null = Set-AzDataFactoryV2Dataset  -ResourceGroupName $resourceGroup -DataFactoryName $dataFactoryName -Name $json.Name -DefinitionFile \"$($dir)\\$($_)\" -Force");
-			stringBuilder.AppendLine($"\n    }}");
-			stringBuilder.AppendLine($"\n    catch {{");
-			stringBuilder.AppendLine($"\n        \"$($_)\"");
-			stringBuilder.AppendLine($"\n        Return");
-			stringBuilder.AppendLine($"\n    }}");
-			stringBuilder.AppendLine($"\n}}");
-			stringBuilder.AppendLine($"\n");
-			stringBuilder.AppendLine($"\n\"\"");
-			stringBuilder.AppendLine($"\n\"- Deploying Pipelines -\"");
-			stringBuilder.AppendLine($"\n$dir = \".\\Pipelines\"");
-			stringBuilder.AppendLine($"\nGet-ChildItem $dir -Filter *.json | Foreach-Object {{");
-			stringBuilder.AppendLine($"\n    $json = Get-Content -Raw -Path \"$($dir)\\$($_)\" | ConvertFrom-Json");
-			stringBuilder.AppendLine($"\n    \"Deploying $($json.Name)...\"");
-			stringBuilder.AppendLine($"\n    try {{");
-			stringBuilder.AppendLine($"\n        $null = Set-AzDataFactoryV2Pipeline  -ResourceGroupName $resourceGroup -DataFactoryName $dataFactoryName -Name $json.Name -DefinitionFile \"$($dir)\\$($_)\" -Force");
-			stringBuilder.AppendLine($"\n    }}");
-			stringBuilder.AppendLine($"\n    catch {{");
-			stringBuilder.AppendLine($"\n        \"$($_)\"");
-			stringBuilder.AppendLine($"\n        Return");
-			stringBuilder.AppendLine($"\n    }}");
-			stringBuilder.AppendLine($"\n}}");
-			stringBuilder.AppendLine($"\n");
-			stringBuilder.AppendLine($"\n\"\"");
-			stringBuilder.AppendLine($"\nRead-Host -Prompt \"Deployment complete! Press enter to exit\"");
+			builder.AppendLine($"\n$metadata = Get-Content -Raw -Path \"..\\..\\..\\..\\Metadata\\Model.json\" | ConvertFrom-Json");
+			builder.AppendLine($"\n$subscription = $metadata.DataWarehouse.AzureSubscriptionId");
+			builder.AppendLine($"\n$tenantId = $metadata.DataWarehouse.AzureTenantId");
+			builder.AppendLine($"\n$resourceGroup = $metadata.DataWarehouse.AzureResourceGroup");
+			builder.AppendLine($"\n$dataFactoryName = $metadata.DataWarehouse.AzureDataFactoryName");
+			builder.AppendLine($"\n");
+			builder.AppendLine($"\n### Authenticate ###");
+			builder.AppendLine($"\n$user = Connect-AzAccount -Tenant $tenantId -Subscription $subscription;");
+			builder.AppendLine($"\n$context = Get-AzContext");
+			builder.AppendLine($"\n$dataFactory = Get-AzDataFactoryV2 -ResourceGroupName $resourceGroup -Name $dataFactoryName -ErrorAction SilentlyContinue");
+			builder.AppendLine($"\n$absJsonPath = \".\\\" | Resolve-Path");
+			builder.AppendLine($"\n");
+			builder.AppendLine($"\n\"\"");
+			builder.AppendLine($"\n\"You are deploying the following:\"");
+			builder.AppendLine($"\n\"Subscription: $($subscription)\"");
+			builder.AppendLine($"\n\"ResourceGroup: $($resourceGroup)\"");
+			builder.AppendLine($"\n\"DataFactory: $($dataFactoryName)\"");
+			builder.AppendLine($"\n\"TenantId: $($tenantId)\"");
+			builder.AppendLine($"\n\"Using .json files at $($absJsonPath)\"");
+			builder.AppendLine($"\n$entry = Read-Host -Prompt \"Do you wish to continue? (y/n)\"");
+			builder.AppendLine($"\n");
+			builder.AppendLine($"\nif ($entry -ne \"y\" -or $entry -ne \"Y\") {{");
+			builder.AppendLine($"\n    Return;");
+			builder.AppendLine($"\n}}");
+			builder.AppendLine($"\n");
+			builder.AppendLine($"\nif ($dataFactory -eq $null) {{");
+			builder.AppendLine($"\n    \"Creating data factory $dataFactoryName...\"");
+			builder.AppendLine($"\n}}");
+			builder.AppendLine($"\n");
+			builder.AppendLine($"\n\"\"");
+			builder.AppendLine($"\n\"- Deploying DataSets -\"");
+			builder.AppendLine($"\n\"\"");
+			builder.AppendLine($"\n$dir = \".\\DataSets\"");
+			builder.AppendLine($"\nGet-ChildItem $dir -Filter *.json | Foreach-Object {{");
+			builder.AppendLine($"\n    $json = Get-Content -Raw -Path \"$($dir)\\$($_)\" | ConvertFrom-Json");
+			builder.AppendLine($"\n    \"Deploying $($json.Name)...\"");
+			builder.AppendLine($"\n    try {{");
+			builder.AppendLine($"\n        $null = Set-AzDataFactoryV2Dataset  -ResourceGroupName $resourceGroup -DataFactoryName $dataFactoryName -Name $json.Name -DefinitionFile \"$($dir)\\$($_)\" -Force");
+			builder.AppendLine($"\n    }}");
+			builder.AppendLine($"\n    catch {{");
+			builder.AppendLine($"\n        \"$($_)\"");
+			builder.AppendLine($"\n        Return");
+			builder.AppendLine($"\n    }}");
+			builder.AppendLine($"\n}}");
+			builder.AppendLine($"\n");
+			builder.AppendLine($"\n\"\"");
+			builder.AppendLine($"\n\"- Deploying Pipelines -\"");
+			builder.AppendLine($"\n$dir = \".\\Pipelines\"");
+			builder.AppendLine($"\nGet-ChildItem $dir -Filter *.json | Foreach-Object {{");
+			builder.AppendLine($"\n    $json = Get-Content -Raw -Path \"$($dir)\\$($_)\" | ConvertFrom-Json");
+			builder.AppendLine($"\n    \"Deploying $($json.Name)...\"");
+			builder.AppendLine($"\n    try {{");
+			builder.AppendLine($"\n        $null = Set-AzDataFactoryV2Pipeline  -ResourceGroupName $resourceGroup -DataFactoryName $dataFactoryName -Name $json.Name -DefinitionFile \"$($dir)\\$($_)\" -Force");
+			builder.AppendLine($"\n    }}");
+			builder.AppendLine($"\n    catch {{");
+			builder.AppendLine($"\n        \"$($_)\"");
+			builder.AppendLine($"\n        Return");
+			builder.AppendLine($"\n    }}");
+			builder.AppendLine($"\n}}");
+			builder.AppendLine($"\n");
+			builder.AppendLine($"\n\"\"");
+			builder.AppendLine($"\nRead-Host -Prompt \"Deployment complete! Press enter to exit\"");
 
 			string outputPath = Path.Combine(Properties.Instance.OutputDirectory!, projectName);
 
-			File.WriteAllText(Path.Combine(outputPath, "deploy.ps1"), stringBuilder.ToString());
+			File.WriteAllText(Path.Combine(outputPath, "deploy.ps1"), builder.ToString());
 		}
 	}
 }

@@ -1,10 +1,10 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright © 2021 Oscar Björhn, Petter Löfgren and contributors
 
-using Daf.Core.Adf.IonStructure;
-using Daf.Core.Adf.JsonStructure;
+using Plasma.Core.Plugins.Adf.IonStructure;
+using Plasma.Core.Plugins.Adf.JsonStructure;
 
-namespace Daf.Core.Adf.Generators
+namespace Plasma.Core.Plugins.Adf.Generators
 {
 	public static class ProjectGenerator
 	{
