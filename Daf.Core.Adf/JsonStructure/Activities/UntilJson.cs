@@ -2,15 +2,14 @@
 // Copyright © 2021 Oscar Björhn, Petter Löfgren and contributors
 
 using System.Collections.Generic;
-using Plasma.Core.Plugins.Adf.IonStructure;
-using Plasma.Core.Plugins.Adf.JsonStructure;
+using Daf.Core.Plugins.Adf.IonStructure;
 
 namespace Adf.JsonStructure.Activities
 {
 	public class UntilJson : ActivityJson
 	{
-		public List<InputJson> Inputs { get; set; }
-		public List<OutputJson> Outputs { get; set; }
+		public List<object> Inputs { get; set; }
+		public List<object> Outputs { get; set; }
 
 		public UntilJson() : base()
 		{

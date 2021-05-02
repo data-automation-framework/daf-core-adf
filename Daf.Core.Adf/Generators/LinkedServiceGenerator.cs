@@ -2,10 +2,10 @@
 // Copyright © 2021 Oscar Björhn, Petter Löfgren and contributors
 
 using System.Collections.Generic;
-using Plasma.Core.Plugins.Adf.IonStructure;
-using Plasma.Core.Plugins.Adf.JsonStructure;
+using Daf.Core.Plugins.Adf.IonStructure;
+using Daf.Core.Plugins.Adf.JsonStructure;
 
-namespace Plasma.Core.Plugins.Adf.Generators
+namespace Daf.Core.Plugins.Adf.Generators
 {
 	public static class LinkedServiceGenerator
 	{
@@ -13,7 +13,7 @@ namespace Plasma.Core.Plugins.Adf.Generators
 		{
 			if (projectNode?.LinkedServices != null)
 			{
-				List<LinkedServiceJson> linkedServices = new();
+				List<object> linkedServices = new();
 
 				foreach (LinkedService linkedService in projectNode.LinkedServices)
 				{

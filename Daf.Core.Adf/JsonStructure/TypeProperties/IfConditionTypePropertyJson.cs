@@ -2,7 +2,6 @@
 // Copyright © 2021 Oscar Björhn, Petter Löfgren and contributors
 
 using System.Collections.Generic;
-using Plasma.Core.Plugins.Adf.JsonStructure;
 
 #nullable disable
 namespace Adf.JsonStructure.TypeProperties
@@ -10,9 +9,9 @@ namespace Adf.JsonStructure.TypeProperties
 	public class IfConditionTypePropertyJson : TypePropertyJson
 	{
 		public bool EnableStaging { get; set; }
-		public ExpressionJson Expression { get; set; }
-		public List<ActivityJson> IfTrueActivities { get; set; }
-		public List<ActivityJson> IfFalseActivities { get; set; }
+		public object Expression { get; set; }
+		public List<object> IfTrueActivities { get; set; }
+		public List<object> IfFalseActivities { get; set; }
 
 		public IfConditionTypePropertyJson()
 		{

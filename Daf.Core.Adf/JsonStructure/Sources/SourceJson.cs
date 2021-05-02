@@ -3,8 +3,8 @@
 
 #nullable disable
 using System.Collections.Generic;
-using Plasma.Core.Plugins.Adf.IonStructure;
-using Plasma.Core.Plugins.Adf.JsonStructure;
+using Daf.Core.Plugins.Adf.IonStructure;
+using Daf.Core.Plugins.Adf.JsonStructure;
 
 namespace Adf.JsonStructure.Sources
 {
@@ -15,13 +15,13 @@ namespace Adf.JsonStructure.Sources
 
 	public class JsonSourceJson : SourceJson
 	{
-		public StoreSettingsJson StoreSettings { get; set; }
+		public object StoreSettings { get; set; }
 
 		public JsonSourceJson()
 		{
 			Type = DataSourceTypeEnum.JsonSource.ToString();
 
-			StoreSettings = new();
+			StoreSettings = new StoreSettingsJson();
 		}
 	}
 

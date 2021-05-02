@@ -2,10 +2,10 @@
 // Copyright © 2021 Oscar Björhn, Petter Löfgren and contributors
 
 using System.Collections.Generic;
-using Plasma.Core.Plugins.Adf.IonStructure;
-using Plasma.Core.Plugins.Adf.JsonStructure;
+using Daf.Core.Plugins.Adf.IonStructure;
+using Daf.Core.Plugins.Adf.JsonStructure;
 
-namespace Plasma.Core.Plugins.Adf.Generators
+namespace Daf.Core.Plugins.Adf.Generators
 {
 	public static class PipelineGenerator
 	{
@@ -13,7 +13,7 @@ namespace Plasma.Core.Plugins.Adf.Generators
 		{
 			if (projectNode?.Pipelines != null)
 			{
-				List<PipelineJson> pipelines = new();
+				List<object> pipelines = new();
 
 				foreach (Pipeline pipeline in projectNode.Pipelines)
 				{
@@ -39,7 +39,7 @@ namespace Plasma.Core.Plugins.Adf.Generators
 		{
 			if (pipeline.PipelineProperties.Parameters != null)
 			{
-				propertyJson.Parameters = new List<ParameterJson>();
+				propertyJson.Parameters = new List<object>();
 
 				foreach (Parameter parameter in pipeline.PipelineProperties.Parameters)
 				{
@@ -63,7 +63,7 @@ namespace Plasma.Core.Plugins.Adf.Generators
 		{
 			if (pipeline.PipelineProperties.Variables != null)
 			{
-				propertyJson.Variables = new List<VariableJson>();
+				propertyJson.Variables = new List<object>();
 
 				foreach (Variable variable in pipeline.PipelineProperties.Variables)
 				{

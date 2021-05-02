@@ -3,32 +3,31 @@
 
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
-using Adf.JsonStructure;
 using AzureDataFactoryProjects.JsonConverters;
-using Plasma.Core.Plugins.Adf.IonStructure;
+using Daf.Core.Plugins.Adf.IonStructure;
 
 #nullable disable
-namespace Plasma.Core.Plugins.Adf.JsonStructure
+namespace Daf.Core.Plugins.Adf.JsonStructure
 {
 	public class ProjectJson
 	{
 		public string Name { get; set; }
-		public List<PipelineJson> Pipelines { get; set; }
-		public List<DataSetJson> DataSets { get; set; }
-		public List<LinkedServiceJson> LinkedServices { get; set; }
+		public List<object> Pipelines { get; set; }
+		public List<object> DataSets { get; set; }
+		public List<object> LinkedServices { get; set; }
 
 		public ProjectJson()
 		{
-			Pipelines = new List<PipelineJson>();
-			DataSets = new List<DataSetJson>();
-			LinkedServices = new List<LinkedServiceJson>();
+			Pipelines = new List<object>();
+			DataSets = new List<object>();
+			LinkedServices = new List<object>();
 		}
 	}
 
 	public class PipelineJson : IJsonInterface
 	{
 		public string Name { get; set; }
-		public PropertyJson Properties { get; set; }
+		public object Properties { get; set; }
 		public static string Type { get; set; }
 
 		public PipelineJson()
@@ -54,19 +53,19 @@ namespace Plasma.Core.Plugins.Adf.JsonStructure
 
 	public class PropertyJson
 	{
-		public List<ActivityJson> Activities { get; set; }
+		public List<object> Activities { get; set; }
 
 		[JsonConverter(typeof(PipelineParameterConverter))]
-		public List<ParameterJson> Parameters { get; set; }
+		public List<object> Parameters { get; set; }
 
 		[JsonConverter(typeof(PipelineVariableConverter))]
-		public List<VariableJson> Variables { get; set; }
+		public List<object> Variables { get; set; }
 
 		public string[] Annotations { get; set; }
 
 		public PropertyJson()
 		{
-			Activities = new List<ActivityJson>();
+			Activities = new List<object>();
 			Annotations = new string[0];
 		}
 	}
@@ -122,7 +121,7 @@ namespace Plasma.Core.Plugins.Adf.JsonStructure
 	public class LookupDataSetJson
 	{
 		[JsonConverter(typeof(PipelineParameterConverter))]
-		public List<ParameterJson> Parameters { get; set; }
+		public List<object> Parameters { get; set; }
 		public string ReferenceName { get; set; }
 		public string Type { get; set; }
 
@@ -136,18 +135,18 @@ namespace Plasma.Core.Plugins.Adf.JsonStructure
 	{
 		public string Type { get; set; }
 		public string CollectionReference { get; set; }
-		public List<MappingJson> Mappings { get; set; }
+		public List<object> Mappings { get; set; }
 
 		public TranslatorJson()
 		{
-			Mappings = new List<MappingJson>();
+			Mappings = new List<object>();
 		}
 	}
 
 	public class MappingJson
 	{
-		public MappingSourceJson Source { get; set; }
-		public MappingSinkJson Sink { get; set; }
+		public object Source { get; set; }
+		public object Sink { get; set; }
 	}
 
 	public class MappingSourceJson
@@ -173,14 +172,12 @@ namespace Plasma.Core.Plugins.Adf.JsonStructure
 		}
 	}
 
-	
-
 	public class InputJson
 	{
 		public string ReferenceName { get; set; }
 		public string Type { get; set; }
 		[JsonConverter(typeof(PipelineParameterConverter))]
-		public List<ParameterJson> Parameters { get; set; }
+		public List<object> Parameters { get; set; }
 
 		public InputJson()
 		{
@@ -193,7 +190,7 @@ namespace Plasma.Core.Plugins.Adf.JsonStructure
 		public string ReferenceName { get; set; }
 		public string Type { get; set; }
 		[JsonConverter(typeof(PipelineParameterConverter))]
-		public List<ParameterJson> Parameters { get; set; }
+		public List<object> Parameters { get; set; }
 
 		public OutputJson()
 		{
@@ -205,7 +202,7 @@ namespace Plasma.Core.Plugins.Adf.JsonStructure
 	{
 		public string Name { get; set; }
 		public string Type { get; set; }
-		public DataSetPropertyJson Properties { get; set; }
+		public object Properties { get; set; }
 		public DataSetJson()
 		{
 			Type = "Microsoft.DataFactory/factories/datasets";
@@ -214,13 +211,13 @@ namespace Plasma.Core.Plugins.Adf.JsonStructure
 
 	public class DataSetPropertyJson
 	{
-		public LinkedServiceNameJson LinkedServiceName { get; set; }
+		public object LinkedServiceName { get; set; }
 		[JsonConverter(typeof(PipelineParameterConverter))]
-		public List<ParameterJson> Parameters { get; set; }
+		public List<object> Parameters { get; set; }
 		public string[] Annotations { get; set; }
 		public dynamic Schema { get; set; }
 		public string Type { get; set; }
-		public DataSetTypePropertyJson TypeProperties { get; set; }
+		public object TypeProperties { get; set; }
 		public DataSetPropertyJson()
 		{
 			Annotations = new string[0];
@@ -270,7 +267,7 @@ namespace Plasma.Core.Plugins.Adf.JsonStructure
 
 	public class DataSetTypePropertyJson
 	{
-		public LocationJson Location { get; set; }
+		public object Location { get; set; }
 		public dynamic RelativeUrl { get; set; }
 		public string Schema { get; set; }
 		public string Table { get; set; }
@@ -295,7 +292,7 @@ namespace Plasma.Core.Plugins.Adf.JsonStructure
 	{
 		public string Name { get; set; }
 		public string Type { get; set; }
-		public LinkedServicePropertyJson Properties { get; set; }
+		public object Properties { get; set; }
 		public LinkedServiceJson()
 		{
 			Type = "Microsoft.DataFactory/factories/linkedservice";
@@ -306,7 +303,7 @@ namespace Plasma.Core.Plugins.Adf.JsonStructure
 	{
 		public string[] Annotations { get; set; }
 		public string Type { get; set; }
-		public LinkedServiceTypePropertyJson TypeProperties { get; set; }
+		public object TypeProperties { get; set; }
 		public LinkedServicePropertyJson()
 		{
 			Annotations = new string[0];

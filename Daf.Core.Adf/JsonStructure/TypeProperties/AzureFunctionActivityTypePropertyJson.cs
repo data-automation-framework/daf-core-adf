@@ -3,17 +3,14 @@
 
 
 #nullable disable
-using Adf.JsonStructure.Sinks;
-using Adf.JsonStructure.Sources;
-using Plasma.Core.Plugins.Adf.JsonStructure;
 
 namespace Adf.JsonStructure.TypeProperties
 {
 	public class CopyTypePropertyJson : TypePropertyJson
 	{
-		public SourceJson Source { get; set; }
-		public SinkJson Sink { get; set; }
-		public TranslatorJson Translator { get; set; }
+		public object Source { get; set; }
+		public object Sink { get; set; }
+		public object Translator { get; set; }
 		public bool EnableStaging { get; set; }
 	}
 }

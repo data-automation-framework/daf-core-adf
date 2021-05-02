@@ -3,15 +3,14 @@
 
 #nullable disable
 using System.Collections.Generic;
-using Plasma.Core.Plugins.Adf.JsonStructure;
 
 namespace Adf.JsonStructure.TypeProperties
 {
 	public class UntilTypePropertyJson : TypePropertyJson
 	{
 		public bool EnableStaging { get; set; }
-		public ExpressionJson Expression { get; set; }
-		public List<ActivityJson> Activities { get; set; }
+		public object Expression { get; set; }
+		public List<object> Activities { get; set; }
 		public string TimeOut { get; set; }
 
 		public UntilTypePropertyJson() : base()

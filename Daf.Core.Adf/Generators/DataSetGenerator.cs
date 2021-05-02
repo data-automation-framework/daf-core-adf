@@ -3,10 +3,10 @@
 
 using System.Collections.Generic;
 using System.Globalization;
-using Plasma.Core.Plugins.Adf.IonStructure;
-using Plasma.Core.Plugins.Adf.JsonStructure;
+using Daf.Core.Plugins.Adf.IonStructure;
+using Daf.Core.Plugins.Adf.JsonStructure;
 
-namespace Plasma.Core.Plugins.Adf.Generators
+namespace Daf.Core.Plugins.Adf.Generators
 {
 	public static class DataSetGenerator
 	{
@@ -14,7 +14,7 @@ namespace Plasma.Core.Plugins.Adf.Generators
 		{
 			if (projectNode?.DataSets != null)
 			{
-				List<DataSetJson> datasets = new();
+				List<object> datasets = new();
 
 				foreach (DataSet dataset in projectNode.DataSets)
 				{
@@ -55,7 +55,7 @@ namespace Plasma.Core.Plugins.Adf.Generators
 
 			if (dataSetProperty.Parameters != null)
 			{
-				dataSetPropertyJson.Parameters = new List<ParameterJson>();
+				dataSetPropertyJson.Parameters = new List<object>();
 
 				foreach (Parameter parameter in dataSetProperty.Parameters)
 				{

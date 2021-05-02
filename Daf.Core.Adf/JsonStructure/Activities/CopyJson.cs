@@ -2,20 +2,20 @@
 // Copyright © 2021 Oscar Björhn, Petter Löfgren and contributors
 
 using System.Collections.Generic;
-using Plasma.Core.Plugins.Adf.IonStructure;
-using Plasma.Core.Plugins.Adf.JsonStructure;
+using Daf.Core.Plugins.Adf.IonStructure;
+using Daf.Core.Plugins.Adf.JsonStructure;
 
 namespace Adf.JsonStructure.Activities
 {
 	public class CopyJson : ActivityJson
 	{
 		public PolicyJson Policy { get; set; }
-		public List<InputJson> Inputs { get; set; }
-		public List<OutputJson> Outputs { get; set; }
+		public List<object> Inputs { get; set; }
+		public List<object> Outputs { get; set; }
 
 		public CopyJson() : base()
 		{
-			Policy = new();
+			Policy = new PolicyJson();
 			Inputs = new();
 			Outputs = new();
 

@@ -5,19 +5,19 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Plasma.Core.Plugins.Adf.IonStructure;
-using Plasma.Core.Plugins.Adf.JsonStructure;
+using Daf.Core.Plugins.Adf.IonStructure;
+using Daf.Core.Plugins.Adf.JsonStructure;
 
 namespace AzureDataFactoryProjects.JsonConverters
 {
-	public class PipelineVariableConverter : JsonConverter<List<VariableJson>>
+	public class PipelineVariableConverter : JsonConverter<List<object>>
 	{
-		public override List<VariableJson> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+		public override List<object> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
 		{
 			throw new Exception("Not implemented!");
 		}
 
-		public override void Write(Utf8JsonWriter writer, List<VariableJson> variables, JsonSerializerOptions options)
+		public override void Write(Utf8JsonWriter writer, List<object> variables, JsonSerializerOptions options)
 		{
 			if (variables.Count <= 0)
 			{
@@ -28,7 +28,7 @@ namespace AzureDataFactoryProjects.JsonConverters
 
 			for (int i = 0; i < variables.Count; i++)
 			{
-				VariableJson variable = variables[i];
+				VariableJson variable = (VariableJson)variables[i];
 
 				writer.WritePropertyName(variable.Name);
 

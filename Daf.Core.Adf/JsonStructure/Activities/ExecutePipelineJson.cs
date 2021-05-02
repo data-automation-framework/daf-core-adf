@@ -2,7 +2,7 @@
 // Copyright © 2021 Oscar Björhn, Petter Löfgren and contributors
 
 #nullable disable
-using Plasma.Core.Plugins.Adf.IonStructure;
+using Daf.Core.Plugins.Adf.IonStructure;
 
 namespace Adf.JsonStructure.Activities
 {

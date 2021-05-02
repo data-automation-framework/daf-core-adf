@@ -5,12 +5,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.Json;
-using Plasma.Core.Plugins.Adf.Generators;
-using Plasma.Core.Plugins.Adf.IonStructure;
-using Plasma.Core.Plugins.Adf.JsonStructure;
-using Plasma.Core.Sdk;
+using System.Linq;
+using Daf.Core.Plugins.Adf.Generators;
+using Daf.Core.Plugins.Adf.IonStructure;
+using Daf.Core.Plugins.Adf.JsonStructure;
+using Daf.Core.Sdk;
 
-namespace Plasma.Core.Plugins.Adf
+namespace Daf.Core.Plugins.Adf
 {
 	public static class AdfGenerator
 	{
@@ -24,12 +25,12 @@ namespace Plasma.Core.Plugins.Adf
 			{
 				WriteIndented = true,
 				IgnoreNullValues = true,
-				PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+				PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
 			};
 
-			WriteJson(projectJson.DataSets, projectOutputPath, options);
-			WriteJson(projectJson.LinkedServices, projectOutputPath, options);
-			WriteJson(projectJson.Pipelines, projectOutputPath, options);
+			WriteJson(projectJson.DataSets.Select(x => (DataSetJson)x).ToList(), projectOutputPath, options);
+			WriteJson(projectJson.LinkedServices.Select(x => (LinkedServiceJson)x).ToList(), projectOutputPath, options);
+			WriteJson(projectJson.Pipelines.Select(x => (PipelineJson)x).ToList(), projectOutputPath, options);
 		}
 
 		public static void WriteJson<T>(List<T> jsonObjects, string projectOutputPath, JsonSerializerOptions options) where T : IJsonInterface
@@ -42,7 +43,7 @@ namespace Plasma.Core.Plugins.Adf
 
 			foreach (T jsonObject in jsonObjects)
 			{
-				File.WriteAllText(Path.Combine(outputPath, jsonObject.Name + ".json"), JsonSerializer.Serialize(jsonObject, options));
+				File.WriteAllText(Path.Combine(outputPath, jsonObject.Name + ".json"), JsonSerializer.Serialize<object>(jsonObject, options));
 			}
 		}
 

@@ -3,11 +3,11 @@
 
 using System;
 using System.Globalization;
-using Plasma.Core.Plugins.Adf.IonStructure;
-using Plasma.Core.Sdk;
-using Plasma.Core.Sdk.Ion.Reader;
+using Daf.Core.Plugins.Adf.IonStructure;
+using Daf.Core.Sdk;
+using Daf.Core.Sdk.Ion.Reader;
 
-namespace Plasma.Core.Plugins.Adf
+namespace Daf.Core.Plugins.Adf
 {
 	public class AdfPlugin : IPlugin
 	{

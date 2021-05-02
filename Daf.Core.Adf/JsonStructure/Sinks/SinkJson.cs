@@ -2,7 +2,8 @@
 // Copyright © 2021 Oscar Björhn, Petter Löfgren and contributors
 
 #nullable disable
-using Plasma.Core.Plugins.Adf.IonStructure;
+using Daf.Core.Plugins.Adf.IonStructure;
+using Daf.Core.Plugins.Adf.JsonStructure;
 
 namespace Adf.JsonStructure.Sinks
 {
@@ -18,7 +19,7 @@ namespace Adf.JsonStructure.Sinks
 
 		public JsonSinkJson()
 		{
-			StoreSettings = new { Type = "AzureBlobStorageWriteSettings" };
+			StoreSettings = new StoreSettingsJson { Type = "AzureBlobStorageWriteSettings" };
 
 			FormatSettings = new {
 				Type = "JsonWriteSettings",

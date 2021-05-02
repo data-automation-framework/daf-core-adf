@@ -5,18 +5,18 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Plasma.Core.Plugins.Adf.JsonStructure;
+using Daf.Core.Plugins.Adf.JsonStructure;
 
 namespace AzureDataFactoryProjects.JsonConverters
 {
-	public class PipelineParameterConverter : JsonConverter<List<ParameterJson>>
+	public class PipelineParameterConverter : JsonConverter<List<object>>
 	{
-		public override List<ParameterJson> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+		public override List<object> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
 		{
 			throw new Exception("Not implemented!");
 		}
 
-		public override void Write(Utf8JsonWriter writer, List<ParameterJson> parameters, JsonSerializerOptions options)
+		public override void Write(Utf8JsonWriter writer, List<object> parameters, JsonSerializerOptions options)
 		{
 			if (parameters.Count <= 0)
 			{
@@ -27,7 +27,7 @@ namespace AzureDataFactoryProjects.JsonConverters
 
 			for (int i = 0; i < parameters.Count; i++)
 			{
-				ParameterJson parameter = parameters[i];
+				ParameterJson parameter = (ParameterJson)parameters[i];
 
 				writer.WritePropertyName(parameter.Name);
 
