@@ -110,7 +110,7 @@ namespace Daf.Core.Plugins.Adf.IonStructure
 		/// <summary>
 		/// Reference to a linked service.
 		/// </summary>
-		public LinkedServiceReference LinkedServiceReference { get; set; }
+		public string LinkedService { get; set; }
 
 		/// <summary>
 		/// The name of the activity.
@@ -218,7 +218,7 @@ namespace Daf.Core.Plugins.Adf.IonStructure
 		/// <summary>
 		/// An Azure Data Factory expression.
 		/// </summary>
-		public AzureExpression Expression { get; set; }
+		public string Expression { get; set; }
 
 		/// <summary>
 		/// List of internal activities in this activity.
@@ -331,17 +331,6 @@ namespace Daf.Core.Plugins.Adf.IonStructure
 	}
 
 	/// <summary>
-	/// An Azure Data Factory expression.
-	/// </summary>
-	public class AzureExpression
-	{
-		/// <summary>
-		/// Value of the Azure Data Factory expression.
-		/// </summary>
-		public string Value { get; set; }
-	}
-
-	/// <summary>
 	/// The name of the Azure Function to call.
 	/// </summary>
 	public class AzureFunction
@@ -380,11 +369,6 @@ namespace Daf.Core.Plugins.Adf.IonStructure
 		public string UrlValue { get; set; }
 	}
 
-	public class SqlQuery
-	{
-		public string Value { get; set; }
-	}
-
 	/// <summary>
 	/// A source.
 	/// </summary>
@@ -398,7 +382,7 @@ namespace Daf.Core.Plugins.Adf.IonStructure
 		/// <summary>
 		/// SQL query of which the result set will be used as the source.
 		/// </summary>
-		public SqlQuery SqlQuery { get; set; }
+		public string SqlQuery { get; set; }
 
 		/// <summary>
 		/// List of pagination rules for the Rest dataset.
@@ -424,7 +408,7 @@ namespace Daf.Core.Plugins.Adf.IonStructure
 		/// <summary>
 		/// Whether or not to recurse through the store.
 		/// </summary>
-		public Recursive Recursive { get; set; }
+		public bool Recursive { get; set; }
 
 		/// <summary>
 		/// The wildcard filename to use when searching for files through the store.
@@ -435,17 +419,6 @@ namespace Daf.Core.Plugins.Adf.IonStructure
 		/// The settings of accessing the store related to this source.
 		/// </summary>
 		public StoreSettingsTypeEnum Type { get; set; }
-	}
-
-	/// <summary>
-	/// Whether or not to recurse through the store.
-	/// </summary>
-	public class Recursive
-	{
-		/// <summary>
-		/// Whether or not to recurse through the store.
-		/// </summary>
-		public bool RecursiveValue { get; set; }
 	}
 
 	/// <summary>
@@ -706,17 +679,6 @@ namespace Daf.Core.Plugins.Adf.IonStructure
 		public List<Parameter> Parameters { get; set; }
 	}
 
-	/// <summary>
-	/// The name of the linked service from which this dataset originates.
-	/// </summary>
-	public class LinkedServiceReference
-	{
-		/// <summary>
-		/// Name of the referenced linked service.
-		/// </summary>
-		public string Name { get; set; }
-	}
-
 	public enum ActivityTypeEnum
 	{
 		Copy,
@@ -760,7 +722,7 @@ namespace Daf.Core.Plugins.Adf.IonStructure
 		/// <summary>
 		/// The name of the linked service from which this dataset originates.
 		/// </summary>
-		public LinkedServiceReference LinkedServiceReference { get; set; }
+		public string LinkedService { get; set; }
 
 		/// <summary>
 		/// Collection of all parameters for this dataset.

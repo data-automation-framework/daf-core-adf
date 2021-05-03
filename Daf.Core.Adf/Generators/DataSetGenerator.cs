@@ -135,11 +135,11 @@ namespace Daf.Core.Plugins.Adf.Generators
 
 		public static void SetDataSetLinkedServiceReference(DataSet dataset, DataSetPropertyJson datasetPropertyJson)
 		{
-			if (dataset.DataSetProperties.LinkedServiceReference != null)
+			if (dataset.DataSetProperties.LinkedService != null)
 			{
 				LinkedServiceNameJson linkedServiceNameJson = new();
 
-				linkedServiceNameJson.ReferenceName = dataset.DataSetProperties.LinkedServiceReference.Name;
+				linkedServiceNameJson.ReferenceName = dataset.DataSetProperties.LinkedService.Name;
 
 				datasetPropertyJson.LinkedServiceName = linkedServiceNameJson;
 			}

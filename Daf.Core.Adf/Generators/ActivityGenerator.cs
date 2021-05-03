@@ -116,9 +116,9 @@ namespace Daf.Core.Plugins.Adf.Generators
 		{
 			SqlServerStoredProcedureJson returnJson = new();
 
-			if (activity.LinkedServiceReference.Name != null)
+			if (activity.LinkedService.Name != null)
 			{
-				((LinkedServiceNameJson)returnJson.LinkedServiceName).ReferenceName = activity.LinkedServiceReference.Name;
+				((LinkedServiceNameJson)returnJson.LinkedServiceName).ReferenceName = activity.LinkedService.Name;
 			}
 
 			SqlServerStoredProcedureTypePropertyJson typePropertyJson = new();
@@ -199,7 +199,7 @@ namespace Daf.Core.Plugins.Adf.Generators
 		{
 			AzureFunctionActivityJson returnJson = new();
 
-			((LinkedServiceNameJson)returnJson.LinkedServiceName).ReferenceName = activity.LinkedServiceReference.Name;
+			((LinkedServiceNameJson)returnJson.LinkedServiceName).ReferenceName = activity.LinkedService.Name;
 
 			AzureFunctionActivityTypePropertyJson typePropertyJson = new();
 
