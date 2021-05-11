@@ -116,9 +116,9 @@ namespace Daf.Core.Plugins.Adf.Generators
 		{
 			SqlServerStoredProcedureJson returnJson = new();
 
-			if (activity.LinkedService.Name != null)
+			if (activity.LinkedService != null)
 			{
-				((LinkedServiceNameJson)returnJson.LinkedServiceName).ReferenceName = activity.LinkedService.Name;
+				((LinkedServiceNameJson)returnJson.LinkedServiceName).ReferenceName = activity.LinkedService;
 			}
 
 			SqlServerStoredProcedureTypePropertyJson typePropertyJson = new();
@@ -199,7 +199,7 @@ namespace Daf.Core.Plugins.Adf.Generators
 		{
 			AzureFunctionActivityJson returnJson = new();
 
-			((LinkedServiceNameJson)returnJson.LinkedServiceName).ReferenceName = activity.LinkedService.Name;
+			((LinkedServiceNameJson)returnJson.LinkedServiceName).ReferenceName = activity.LinkedService;
 
 			AzureFunctionActivityTypePropertyJson typePropertyJson = new();
 
@@ -233,7 +233,7 @@ namespace Daf.Core.Plugins.Adf.Generators
 
 			typePropertyJson.Expression = new ExpressionJson()
 			{
-				Value = typeProperty.Expression.Value
+				Value = typeProperty.Expression
 			};
 
 			typePropertyJson.Activities = GetActivityJsonList(typeProperty.Activities, isInternal: true);
@@ -303,7 +303,7 @@ namespace Daf.Core.Plugins.Adf.Generators
 
 			typePropertyJson.Expression = new ExpressionJson()
 			{
-				Value = typeProperty.Expression.Value
+				Value = typeProperty.Expression
 			};
 
 			if (typeProperty.IfTrueActivities != null)
@@ -517,7 +517,7 @@ namespace Daf.Core.Plugins.Adf.Generators
 						StoreSettings = new StoreSettingsJson()
 						{
 							Type = storeSettings.Type.ToString(),
-							Recursive = storeSettings.Recursive.RecursiveValue,
+							Recursive = storeSettings.Recursive,
 							WildcardFileName = storeSettings.WildcardFileName?.WildcardFileNameValue
 						}
 					};
@@ -525,13 +525,13 @@ namespace Daf.Core.Plugins.Adf.Generators
 				case DataSourceTypeEnum.AzureSqlSource:
 					sourceJson = new AzureSqlSourceJson()
 					{
-						SqlReaderQuery = source.SqlQuery.Value
+						SqlReaderQuery = source.SqlQuery
 					};
 					break;
 				case DataSourceTypeEnum.OdbcSource:
 					sourceJson = new OdbcSourceJson()
 					{
-						Query = new { source.SqlQuery.Value, Type = "Expression" }
+						Query = new { source.SqlQuery, Type = "Expression" }
 					};
 					break;
 				case DataSourceTypeEnum.RestSource:

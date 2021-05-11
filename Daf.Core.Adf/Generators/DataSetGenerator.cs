@@ -139,7 +139,7 @@ namespace Daf.Core.Plugins.Adf.Generators
 			{
 				LinkedServiceNameJson linkedServiceNameJson = new();
 
-				linkedServiceNameJson.ReferenceName = dataset.DataSetProperties.LinkedService.Name;
+				linkedServiceNameJson.ReferenceName = dataset.DataSetProperties.LinkedService;
 
 				datasetPropertyJson.LinkedServiceName = linkedServiceNameJson;
 			}
