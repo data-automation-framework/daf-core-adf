@@ -359,7 +359,7 @@ namespace Daf.Core.Plugins.Adf.Generators
 			typePropertyJson.Source = GetSourceJson(activity.Source);
 			typePropertyJson.Sink = GetSinkJson(activity.Sink);
 
-			if (activity.Source.Type == DataSourceTypeEnum.JsonSource)
+			if (activity.Source.Type == DataSourceTypeEnum.JsonSource && activity.Translator != null)
 			{
 				TranslatorJson translatorJson = new();
 				translatorJson.Type = activity.Translator.Type.ToString();
