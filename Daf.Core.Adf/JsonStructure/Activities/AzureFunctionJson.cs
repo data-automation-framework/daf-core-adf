@@ -6,12 +6,12 @@ using Daf.Core.Plugins.Adf.JsonStructure;
 
 namespace Adf.JsonStructure.Activities
 {
-	public class AzureFunctionActivityJson : ActivityJson
+	public class AzureFunctionJson : ActivityJson
 	{
 		public object Policy { get; set; }
 		public object LinkedServiceName { get; set; }
 
-		public AzureFunctionActivityJson() : base()
+		public AzureFunctionJson() : base()
 		{
 			Policy = new PolicyJson();
 			LinkedServiceName = new LinkedServiceNameJson();

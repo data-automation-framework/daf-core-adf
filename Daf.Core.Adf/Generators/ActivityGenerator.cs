@@ -33,52 +33,61 @@ namespace Daf.Core.Plugins.Adf.Generators
 			{
 				ActivityJson activityJson;
 
-				switch (activity.Type)
+				switch (activity)
 				{
 					// TODO: all of these get functions need to throw exceptions if something is null where it shouldn't be.
 					// TODO: Activity will likely become an abstract superclass in the ionstructure simplifying this behavior.
-					case ActivityTypeEnum.SqlServerStoredProcedure:
-						activityJson = GetSqlServerStoredProcedureJson(activity);
+					case SqlServerStoredProcedure sqlActivity:
+						activityJson = GetSqlServerStoredProcedureJson(sqlActivity);
+						activityJson.Type = ActivityTypeEnum.SqlServerStoredProcedure.ToString();
 						break;
-					case ActivityTypeEnum.Lookup:
-						activityJson = GetLookupJson(activity);
+					case Lookup lookupActivity:
+						activityJson = GetLookupJson(lookupActivity);
+						activityJson.Type = ActivityTypeEnum.Lookup.ToString();
 						break;
-					case ActivityTypeEnum.AzureFunctionActivity:
-						activityJson = GetAzureFunctionActivityJson(activity);
+					case AzureFunction azureFunctionActivity:
+						activityJson = GetAzureFunctionActivityJson(azureFunctionActivity);
+						activityJson.Type = ActivityTypeEnum.AzureFunctionActivity.ToString();
 						break;
-					case ActivityTypeEnum.Until:
+					case Until untilActivity:
 						if (isInternal)
 							throw new SystemException($"An Until activity cannot be nested within another activity!");
-						activityJson = GetUntilJson(activity);
+						activityJson = GetUntilJson(untilActivity);
+						activityJson.Type = ActivityTypeEnum.Until.ToString();
 						break;
-					case ActivityTypeEnum.Wait:
-						activityJson = GetWaitJson(activity);
+					case Wait waitActivity:
+						activityJson = GetWaitJson(waitActivity);
+						activityJson.Type = ActivityTypeEnum.Wait.ToString();
 						break;
-					case ActivityTypeEnum.WebActivity:
-						activityJson = GetWebActivityJson(activity);
+					case Web webActivity:
+						activityJson = GetWebActivityJson(webActivity);
+						activityJson.Type = ActivityTypeEnum.WebActivity.ToString();
 						break;
-					case ActivityTypeEnum.SetVariable:
-						activityJson = GetSetVariableJson(activity);
+					case SetVariable setVariableActivity:
+						activityJson = GetSetVariableJson(setVariableActivity);
+						activityJson.Type = ActivityTypeEnum.SetVariable.ToString();
 						break;
-					case ActivityTypeEnum.IfCondition:
+					case IfCondition ifActivity:
 						if (isInternal)
 							throw new SystemException($"An IfCondition activity cannot be nested within another activity!");
-						activityJson = GetIfConditionJson(activity);
+						activityJson = GetIfConditionJson(ifActivity);
+						activityJson.Type = ActivityTypeEnum.IfCondition.ToString();
 						break;
-					case ActivityTypeEnum.ExecutePipeline:
-						activityJson = GetExecutePipelineJson(activity);
+					case ExecutePipeline executePipelineActivity:
+						activityJson = GetExecutePipelineJson(executePipelineActivity);
+						activityJson.Type = ActivityTypeEnum.ExecutePipeline.ToString();
 						break;
-					case ActivityTypeEnum.Copy:
+					case Copy copyActivity:
+						activityJson = GetCopyJson(copyActivity);
+						activityJson.Type = ActivityTypeEnum.Copy.ToString();
+						break;
 					default:
-						activityJson = GetCopyJson(activity);
-						break;
+						throw new NotImplementedException($"Functionality for activities of type {activity.GetType().Name} not implemented!");
 				}
 
 				activityJson.Name = activity.Name;
-				activityJson.Type = activity.Type.ToString();
 
 				SetActivityDependencies(activity, activityJson);
-
 
 				activities.Add(activityJson);
 			}
@@ -112,7 +121,7 @@ namespace Daf.Core.Plugins.Adf.Generators
 			}
 		}
 
-		private static SqlServerStoredProcedureJson GetSqlServerStoredProcedureJson(Activity activity)
+		private static SqlServerStoredProcedureJson GetSqlServerStoredProcedureJson(SqlServerStoredProcedure activity)
 		{
 			SqlServerStoredProcedureJson returnJson = new();
 
@@ -123,16 +132,14 @@ namespace Daf.Core.Plugins.Adf.Generators
 
 			SqlServerStoredProcedureTypePropertyJson typePropertyJson = new();
 
-			TypePropertyList typeProperty = activity.ActivityTypeProperties;
-
-			if (typeProperty.StoredProcedure.Name != null)
+			if (activity.ProcedureName != null)
 			{
-				typePropertyJson.StoredProcedureName = typeProperty.StoredProcedure.Name;
+				typePropertyJson.StoredProcedureName = activity.ProcedureName;
 			}
 
-			if (typeProperty.StoredProcedure?.StoredProcedureParameters != null)
+			if (activity.StoredProcedureParameters != null)
 			{
-				StoredProcedureParameter[] parameters = typeProperty.StoredProcedure.StoredProcedureParameters.ToArray();
+				StoredProcedureParameter[] parameters = activity.StoredProcedureParameters.ToArray();
 				Dictionary<string, object> StoredProcedureParameters = new();
 
 				foreach (StoredProcedureParameter parameter in parameters)
@@ -171,22 +178,20 @@ namespace Daf.Core.Plugins.Adf.Generators
 			return returnJson;
 		}
 
-		private static LookupJson GetLookupJson(Activity activity)
+		private static LookupJson GetLookupJson(Lookup activity)
 		{
 			LookupJson returnJson = new();
 
 			LookupTypePropertyJson typePropertyJson = new();
 
-			TypePropertyList typeProperty = activity.ActivityTypeProperties;
-
-			if (typeProperty.Source != null)
+			if (activity.Source != null)
 			{
-				typePropertyJson.Source = GetSourceJson(typeProperty.Source);
+				typePropertyJson.Source = GetSourceJson(activity.Source);
 			}
 
-			if (typeProperty.LookupDataSet != null)
+			if (activity.LookupDataSet != null)
 			{
-				typePropertyJson.Dataset = GetLookupDataSet(typeProperty.LookupDataSet);
+				typePropertyJson.Dataset = GetLookupDataSet(activity.LookupDataSet);
 			}
 
 			returnJson.Name = activity.Name;
@@ -195,19 +200,17 @@ namespace Daf.Core.Plugins.Adf.Generators
 			return returnJson;
 		}
 
-		private static AzureFunctionActivityJson GetAzureFunctionActivityJson(Activity activity)
+		private static AzureFunctionJson GetAzureFunctionActivityJson(AzureFunction activity)
 		{
-			AzureFunctionActivityJson returnJson = new();
+			AzureFunctionJson returnJson = new();
 
 			((LinkedServiceNameJson)returnJson.LinkedServiceName).ReferenceName = activity.LinkedService;
 
 			AzureFunctionActivityTypePropertyJson typePropertyJson = new();
 
-			TypePropertyList typeProperty = activity.ActivityTypeProperties;
-
-			typePropertyJson.FunctionName = typeProperty.FunctionName.Name;
-			typePropertyJson.Method = typeProperty.Method.Type.ToString();
-			typePropertyJson.Body = JsonSerializer.Deserialize<object>(typeProperty.Body.Value);
+			typePropertyJson.FunctionName = activity.FunctionName;
+			typePropertyJson.Method = activity.Method.ToString();
+			typePropertyJson.Body = JsonSerializer.Deserialize<object>(activity.Body);
 
 			returnJson.Name = activity.Name;
 			returnJson.TypeProperties = typePropertyJson;
@@ -215,7 +218,7 @@ namespace Daf.Core.Plugins.Adf.Generators
 			return returnJson;
 		}
 
-		private static UntilJson GetUntilJson(Activity activity)
+		private static UntilJson GetUntilJson(Until activity)
 		{
 			UntilJson returnJson = new();
 
@@ -224,8 +227,6 @@ namespace Daf.Core.Plugins.Adf.Generators
 
 			UntilTypePropertyJson typePropertyJson = new();
 
-			TypePropertyList typeProperty = activity.ActivityTypeProperties;
-
 			if (activity.TimeOut != null)
 			{
 				typePropertyJson.TimeOut = activity.TimeOut;
@@ -233,10 +234,10 @@ namespace Daf.Core.Plugins.Adf.Generators
 
 			typePropertyJson.Expression = new ExpressionJson()
 			{
-				Value = typeProperty.Expression
+				Value = activity.Expression
 			};
 
-			typePropertyJson.Activities = GetActivityJsonList(typeProperty.Activities, isInternal: true);
+			typePropertyJson.Activities = GetActivityJsonList(activity.Activities, isInternal: true);
 
 			returnJson.Name = activity.Name;
 			returnJson.TypeProperties = typePropertyJson;
@@ -244,13 +245,13 @@ namespace Daf.Core.Plugins.Adf.Generators
 			return returnJson;
 		}
 
-		private static WaitJson GetWaitJson(Activity activity)
+		private static WaitJson GetWaitJson(Wait activity)
 		{
 			WaitJson returnJson = new();
 
 			WaitTypePropertyJson typePropertyJson = new();
 
-			typePropertyJson.WaitTimeInSeconds = activity.ActivityTypeProperties.WaitTimeInSeconds.WaitTimeInSeconds;
+			typePropertyJson.WaitTimeInSeconds = activity.WaitTimeInSeconds;
 
 			returnJson.Name = activity.Name;
 			returnJson.TypeProperties = typePropertyJson;
@@ -258,17 +259,19 @@ namespace Daf.Core.Plugins.Adf.Generators
 			return returnJson;
 		}
 
-		private static WebActivityJson GetWebActivityJson(Activity activity)
+		private static WebActivityJson GetWebActivityJson(Web activity)
 		{
 			WebActivityJson returnJson = new();
 
-			TypePropertyList typeProperty = activity.ActivityTypeProperties;
-
 			WebActivityTypePropertyJson typePropertyJson = new();
 
-			typePropertyJson.Method = typeProperty.Method.Type.ToString();
-			typePropertyJson.Url = typeProperty.Url.UrlValue;
-			typePropertyJson.Body = "{}";
+			typePropertyJson.Method = activity.Method.ToString();
+			typePropertyJson.Url = activity.Url;
+
+			if (activity.Body != null)
+				typePropertyJson.Body = activity.Body;
+			else
+				typePropertyJson.Body = "{}";
 
 			returnJson.Name = activity.Name;
 			returnJson.TypeProperties = typePropertyJson;
@@ -276,16 +279,14 @@ namespace Daf.Core.Plugins.Adf.Generators
 			return returnJson;
 		}
 
-		private static SetVariableJson GetSetVariableJson(Activity activity)
+		private static SetVariableJson GetSetVariableJson(SetVariable activity)
 		{
 			SetVariableJson returnJson = new();
 
 			SetVariableTypePropertyJson typePropertyJson = new();
 
-			TypePropertyList typeProperty = activity.ActivityTypeProperties;
-
-			typePropertyJson.VariableName = typeProperty.SetVariable.Name;
-			typePropertyJson.Value = typeProperty.SetVariable.Value;
+			typePropertyJson.VariableName = activity.Variable;
+			typePropertyJson.Value = activity.Value;
 
 			returnJson.Name = activity.Name;
 			returnJson.TypeProperties = typePropertyJson;
@@ -293,24 +294,22 @@ namespace Daf.Core.Plugins.Adf.Generators
 			return returnJson;
 		}
 
-		private static IfConditionJson GetIfConditionJson(Activity activity)
+		private static IfConditionJson GetIfConditionJson(IfCondition activity)
 		{
 			IfConditionJson returnJson = new();
 
 			IfConditionTypePropertyJson typePropertyJson = new();
 
-			TypePropertyList typeProperty = activity.ActivityTypeProperties;
-
 			typePropertyJson.Expression = new ExpressionJson()
 			{
-				Value = typeProperty.Expression
+				Value = activity.Expression
 			};
 
-			if (typeProperty.IfTrueActivities != null)
-				typePropertyJson.IfTrueActivities = GetActivityJsonList(typeProperty.IfTrueActivities, isInternal: true);
+			if (activity.IfTrueActivities != null)
+				typePropertyJson.IfTrueActivities = GetActivityJsonList(activity.IfTrueActivities, isInternal: true);
 
-			if (typeProperty.IfFalseActivities != null)
-				typePropertyJson.IfFalseActivities = GetActivityJsonList(typeProperty.IfFalseActivities, isInternal: true);
+			if (activity.IfFalseActivities != null)
+				typePropertyJson.IfFalseActivities = GetActivityJsonList(activity.IfFalseActivities, isInternal: true);
 
 			returnJson.Name = activity.Name;
 			returnJson.TypeProperties = typePropertyJson;
@@ -318,22 +317,20 @@ namespace Daf.Core.Plugins.Adf.Generators
 			return returnJson;
 		}
 
-		private static ExecutePipelineJson GetExecutePipelineJson(Activity activity)
+		private static ExecutePipelineJson GetExecutePipelineJson(ExecutePipeline activity)
 		{
 			ExecutePipelineJson returnJson = new();
 
 			ExecutePipelineTypePropertyJson typePropertyJson = new();
 
-			TypePropertyList typeProperty = activity.ActivityTypeProperties;
-
-			typePropertyJson.Pipeline = new ExecutePipeline()
-			{
-				ReferenceName = typeProperty.Pipeline.ReferenceName
+			typePropertyJson.Pipeline = new {
+				ReferenceName = activity.PipelineName,
+				Type = "PipelineReference"
 			};
 
 			typePropertyJson.Parameters = new();
 
-			foreach (Parameter parameter in typeProperty.Pipeline.Parameters)
+			foreach (Parameter parameter in activity.Parameters)
 			{
 				ParameterJson parameterJson = new()
 				{
@@ -345,30 +342,30 @@ namespace Daf.Core.Plugins.Adf.Generators
 				typePropertyJson.Parameters.Add(parameterJson);
 			}
 
+			typePropertyJson.WaitOnCompletion = activity.WaitOnCompletion;
+
 			returnJson.Name = activity.Name;
 			returnJson.TypeProperties = typePropertyJson;
 
 			return returnJson;
 		}
 
-		private static CopyJson GetCopyJson(Activity activity)
+		private static CopyJson GetCopyJson(Copy activity)
 		{
 			CopyJson returnJson = new();
 
 			CopyTypePropertyJson typePropertyJson = new();
 
-			TypePropertyList typeProperty = activity.ActivityTypeProperties;
+			typePropertyJson.Source = GetSourceJson(activity.Source);
+			typePropertyJson.Sink = GetSinkJson(activity.Sink);
 
-			typePropertyJson.Source = GetSourceJson(typeProperty.Source);
-			typePropertyJson.Sink = GetSinkJson(typeProperty.Sink);
-
-			if (typeProperty.Source.Type == DataSourceTypeEnum.JsonSource)
+			if (activity.Source.Type == DataSourceTypeEnum.JsonSource)
 			{
 				TranslatorJson translatorJson = new();
-				translatorJson.Type = typeProperty.Translator.Type.ToString();
-				translatorJson.CollectionReference = typeProperty.Translator.CollectionReference;
+				translatorJson.Type = activity.Translator.Type.ToString();
+				translatorJson.CollectionReference = activity.Translator.CollectionReference;
 
-				foreach (Mapping mapping in typeProperty.Translator.Mappings)
+				foreach (Mapping mapping in activity.Translator.Mappings)
 				{
 					MappingJson mappingJson = new();
 

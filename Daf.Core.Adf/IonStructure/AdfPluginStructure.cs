@@ -83,9 +83,9 @@ namespace Daf.Core.Plugins.Adf.IonStructure
 	}
 
 	/// <summary>
-	/// Element in list of internal activities in this activity.
+	/// An Azure Data Factory activity.
 	/// </summary>
-	public class Activity
+	public abstract class Activity
 	{
 		/// <summary>
 		/// Collection of all objects that this activity depends on.
@@ -93,39 +93,142 @@ namespace Daf.Core.Plugins.Adf.IonStructure
 		public List<Dependency> Dependencies { get; set; }
 
 		/// <summary>
-		/// Collection of all type properties of this activity's source and sink.
+		/// Wait time in seconds.
 		/// </summary>
-		public TypePropertyList ActivityTypeProperties { get; set; }
-
-		/// <summary>
-		/// Collection of all the inputs of this activity.
-		/// </summary>
-		public List<Input> Inputs { get; set; }
-
-		/// <summary>
-		/// Collection of all the outputs of this activity.
-		/// </summary>
-		public List<Output> Outputs { get; set; }
-
-		/// <summary>
-		/// Reference to a linked service.
-		/// </summary>
-		public string LinkedService { get; set; }
+		public int WaitTimeInSeconds { get; set; }
 
 		/// <summary>
 		/// The name of the activity.
 		/// </summary>
 		public string Name { get; set; }
 
+		public List<Input> Inputs { get; set; }
+		public List<Output> Outputs { get; set; }
+	}
+
+	public class ExecutePipeline : Activity
+	{
+		public bool WaitOnCompletion { get; set; }
+
+		public string PipelineName { get; set; }
+
+		public List<Parameter> Parameters { get; set; }
+	}
+
+	public class Wait : Activity
+	{
+		// Empty class body
+	}
+
+	public class IfCondition : Activity
+	{
+		public string Expression { get; set; }
+		public List<Activity> IfTrueActivities { get; set; }
+		public List<Activity> IfFalseActivities { get; set; }
+	}
+
+	public class Copy : Activity
+	{
+		public Source Source { get; set; }
+		public Sink Sink { get; set; }
+		public Translator Translator { get; set; }
+	}
+
+	public class Web : Activity
+	{
 		/// <summary>
-		/// The type of the activity.
+		/// The HTTP method to utilize.
 		/// </summary>
-		public ActivityTypeEnum Type { get; set; }
+		public HttpMethodTypeEnum Method { get; set; }
 
 		/// <summary>
-		/// Timeout for this activity in D.HH:MM:SS format. If not specified defaults to 7 days.
+		/// The URL to send the HTTP request to.
+		/// </summary>
+		public string Url { get; set; }
+
+		/// <summary>
+		/// The body of the HTTP request.
+		/// </summary>
+		public string Body { get; set; }
+	}
+
+	public class SetVariable : Activity
+	{
+		/// <summary>
+		/// Name of the variable to set.
+		/// </summary>
+		public string Variable { get; set; }
+
+		/// <summary>
+		/// The value to set the variable to.
+		/// </summary>
+		public string Value { get; set; }
+	}
+
+	public class Until : Activity
+	{
+		/// <summary>
+		/// Loop until this Azure Data Factory expression is true.
+		/// </summary>
+		public string Expression { get; set; }
+
+		/// <summary>
+		/// Activities inside the until activity.
+		/// </summary>
+		public List<Activity> Activities { get; set; }
+
+		/// <summary>
+		/// Time until the loop terminates automatically, in d.hh:mm:ss format.
 		/// </summary>
 		public string TimeOut { get; set; }
+	}
+
+	public class SqlServerStoredProcedure : Activity
+	{
+		public string LinkedService { get; set; }
+
+		public string ProcedureName { get; set; }
+
+		public List<StoredProcedureParameter> StoredProcedureParameters { get; set; }
+	}
+
+	public class Lookup : Activity
+	{
+		/// <summary>
+		/// DataSet to use for the lookup.
+		/// </summary>
+		public LookupDataSet LookupDataSet { get; set; }
+
+		/// <summary>
+		/// A source.
+		/// </summary>
+		public Source Source { get; set; }
+	}
+
+	/// <summary>
+	/// An Azure Function Activity.
+	/// </summary>
+	public class AzureFunction : Activity
+	{
+		/// <summary>
+		/// Reference to the linked service containing the function app.
+		/// </summary>
+		public string LinkedService { get; set; }
+
+		/// <summary>
+		/// The name of the function to run.
+		/// </summary>
+		public string FunctionName { get; set; }
+
+		/// <summary>
+		/// The HTTP method to call function with.
+		/// </summary>
+		public HttpMethodTypeEnum Method { get; set; }
+
+		/// <summary>
+		/// The body of the HTTP request.
+		/// </summary>
+		public string Body { get; set; }
 	}
 
 	/// <summary>
@@ -205,168 +308,10 @@ namespace Daf.Core.Plugins.Adf.IonStructure
 		Skipped,
 	}
 
-	public class Body
-	{
-		public string Value { get; set; }
-	}
-
-	/// <summary>
-	/// Element in collection of all type properties of this activity's source and sink.
-	/// </summary>
-	public class TypePropertyList
-	{
-		/// <summary>
-		/// An Azure Data Factory expression.
-		/// </summary>
-		public string Expression { get; set; }
-
-		/// <summary>
-		/// List of internal activities in this activity.
-		/// </summary>
-		public List<Activity> Activities { get; set; }
-
-		/// <summary>
-		/// List of internal activities for the false branch in this if type activity.
-		/// </summary>
-		public List<Activity> IfFalseActivities { get; set; }
-
-		/// <summary>
-		/// List of internal activities for the true branch in this if type activity.
-		/// </summary>
-		public List<Activity> IfTrueActivities { get; set; }
-
-		/// <summary>
-		/// The name of the Azure Function to call.
-		/// </summary>
-		public AzureFunction FunctionName { get; set; }
-
-		/// <summary>
-		/// The http method to use.
-		/// </summary>
-		public HttpMethod Method { get; set; }
-
-		/// <summary>
-		/// The URL to send the HTTP request to.
-		/// </summary>
-		public WebUrl Url { get; set; }
-
-		/// <summary>
-		/// The body of the HTTP request.
-		/// </summary>
-		public Body Body { get; set; }
-
-		/// <summary>
-		/// A source.
-		/// </summary>
-		public Source Source { get; set; }
-
-		/// <summary>
-		/// A sink.
-		/// </summary>
-		public Sink Sink { get; set; }
-
-		/// <summary>
-		/// Wait time in seconds.
-		/// </summary>
-		public WaitTime WaitTimeInSeconds { get; set; }
-
-		/// <summary>
-		/// The type of the translator.
-		/// </summary>
-		public Translator Translator { get; set; }
-
-		/// <summary>
-		/// Stored procedure to execute as part of this activity.
-		/// </summary>
-		public StoredProcedure StoredProcedure { get; set; }
-
-		/// <summary>
-		/// DataSet to use for the lookup.
-		/// </summary>
-		public LookupDataSet LookupDataSet { get; set; }
-
-		/// <summary>
-		/// Pipeline to execute.
-		/// </summary>
-		public ExecutePipeline Pipeline { get; set; }
-
-		/// <summary>
-		/// Variable to set a value for.
-		/// </summary>
-		public SetVariable SetVariable { get; set; }
-	}
-
-	/// <summary>
-	/// Reference to a pipeline that will be executed by parent activity.
-	/// </summary>
-	public class ExecutePipeline
-	{
-		/// <summary>
-		/// The name of the pipeline to execute.
-		/// </summary>
-		public string ReferenceName { get; set; }
-
-		/// <summary>
-		/// Bool that controls whether the execution flow should halt until the executed pipeline has finished or not.
-		/// </summary>
-		public bool WaitOnCompletion { get; set; }
-
-		/// <summary>
-		/// Parameters of the executed pipeline.
-		/// </summary>
-		public List<Parameter> Parameters { get; set; }
-	}
-
-	public class SetVariable
-	{
-		/// <summary>
-		/// The name of the variable to set value for.
-		/// </summary>
-		public string Name { get; set; }
-
-		/// <summary>
-		/// The value to set the variable to.
-		/// </summary>
-		public string Value { get; set; }
-	}
-
-	/// <summary>
-	/// The name of the Azure Function to call.
-	/// </summary>
-	public class AzureFunction
-	{
-		/// <summary>
-		/// The name of the Azure Function to call.
-		/// </summary>
-		public string Name { get; set; }
-	}
-
-	/// <summary>
-	/// The http method to use.
-	/// </summary>
-	public class HttpMethod
-	{
-		/// <summary>
-		/// The HTTP method to use.
-		/// </summary>
-		public HttpMethodTypeEnum Type { get; set; }
-	}
-
 	public enum HttpMethodTypeEnum
 	{
 		GET,
 		POST,
-	}
-
-	/// <summary>
-	/// The URL to send the HTTP request to.
-	/// </summary>
-	public class WebUrl
-	{
-		/// <summary>
-		/// The URL containing the endpoints for this linked service.
-		/// </summary>
-		public string UrlValue { get; set; }
 	}
 
 	/// <summary>
@@ -490,17 +435,6 @@ namespace Daf.Core.Plugins.Adf.IonStructure
 	}
 
 	/// <summary>
-	/// Wait time in seconds.
-	/// </summary>
-	public class WaitTime
-	{
-		/// <summary>
-		/// Wait time in seconds.
-		/// </summary>
-		public int WaitTimeInSeconds { get; set; }
-	}
-
-	/// <summary>
 	/// The type of the translator.
 	/// </summary>
 	public class Translator
@@ -572,22 +506,6 @@ namespace Daf.Core.Plugins.Adf.IonStructure
 	public enum TranslatorTypeEnum
 	{
 		TabularTranslator,
-	}
-
-	/// <summary>
-	/// Stored procedure to execute as part of this activity.
-	/// </summary>
-	public class StoredProcedure
-	{
-		/// <summary>
-		/// List of parameters for the stored procedure.
-		/// </summary>
-		public List<StoredProcedureParameter> StoredProcedureParameters { get; set; }
-
-		/// <summary>
-		/// The name of the stored procedure.
-		/// </summary>
-		public string Name { get; set; }
 	}
 
 	/// <summary>
@@ -699,40 +617,44 @@ namespace Daf.Core.Plugins.Adf.IonStructure
 	public class DataSet
 	{
 		/// <summary>
-		/// The properties of the dataset.
-		/// </summary>
-		public DataSetProperty DataSetProperties { get; set; }
-
-		/// <summary>
 		/// The name of the object.
 		/// </summary>
 		public string Name { get; set; }
 
-		/// <summary>
-		/// The type of the dataset.
-		/// </summary>
-		public DataSetTypeEnum Type { get; set; }
-	}
-
-	/// <summary>
-	/// The properties of the dataset.
-	/// </summary>
-	public class DataSetProperty
-	{
 		/// <summary>
 		/// The name of the linked service from which this dataset originates.
 		/// </summary>
 		public string LinkedService { get; set; }
 
 		/// <summary>
-		/// Collection of all parameters for this dataset.
+		/// The relative URL of the Rest endpoint.
 		/// </summary>
-		public List<Parameter> Parameters { get; set; }
+		public string RelativeUrl { get; set; }
 
 		/// <summary>
-		/// Collection of all the type properties of this dataset.
+		/// The database schema of the dataset.
 		/// </summary>
-		public DataSetTypeProperty DataSetTypeProperties { get; set; }
+		public string Schema { get; set; }
+
+		/// <summary>
+		/// The database table of the dataset.
+		/// </summary>
+		public string Table { get; set; }
+
+		/// <summary>
+		/// The encoding of the file that the dataset refers to. Valid values are: "UTF-7", "UTF-8", "UTF-16", "UTF-16BE", "WINDOWS-1252"
+		/// </summary>
+		public string Encoding { get; set; }
+
+		/// <summary>
+		/// The type of the dataset.
+		/// </summary>
+		public DataSetTypeEnum Type { get; set; }
+
+		/// <summary>
+		/// The location of the dataset.
+		/// </summary>
+		public Location Location { get; set; }
 
 		/// <summary>
 		/// Schema of the json data.
@@ -743,6 +665,11 @@ namespace Daf.Core.Plugins.Adf.IonStructure
 		/// Schema of the Azure SQL table.
 		/// </summary>
 		public AzureSqlTableSchema AzureSqlTableSchema { get; set; }
+
+		/// <summary>
+		/// Collection of all parameters for this dataset.
+		/// </summary>
+		public List<Parameter> Parameters { get; set; }
 	}
 
 	public enum JsonItemTypeEnum
@@ -751,37 +678,6 @@ namespace Daf.Core.Plugins.Adf.IonStructure
 		integer,
 		boolean,
 		@float,
-	}
-
-	/// <summary>
-	/// Element in collection of all dataset definitions in the project.
-	/// </summary>
-	public class DataSetTypeProperty
-	{
-		/// <summary>
-		/// The location of the dataset.
-		/// </summary>
-		public Location Location { get; set; }
-
-		/// <summary>
-		/// The relative URL of the Rest endpoint.
-		/// </summary>
-		public RelativeUrl RelativeUrl { get; set; }
-
-		/// <summary>
-		/// The database schema of the dataset.
-		/// </summary>
-		public DataSetSchema Schema { get; set; }
-
-		/// <summary>
-		/// The database table of the dataset.
-		/// </summary>
-		public DataSetTable Table { get; set; }
-
-		/// <summary>
-		/// The encoding of the file that the dataset refers to. Valid values are: "UTF-7", "UTF-8", "UTF-16", "UTF-16BE", "WINDOWS-1252"
-		/// </summary>
-		public string Encoding { get; set; }
 	}
 
 	/// <summary>
@@ -841,39 +737,6 @@ namespace Daf.Core.Plugins.Adf.IonStructure
 	public enum LocationTypeEnum
 	{
 		AzureBlobStorageLocation,
-	}
-
-	/// <summary>
-	/// The relative URL of the Rest endpoint.
-	/// </summary>
-	public class RelativeUrl
-	{
-		/// <summary>
-		/// The relative URL of the Rest endpoint.
-		/// </summary>
-		public string RelativeUrlValue { get; set; }
-	}
-
-	/// <summary>
-	/// The database schema of the dataset.
-	/// </summary>
-	public class DataSetSchema
-	{
-		/// <summary>
-		/// The database schema of the dataset.
-		/// </summary>
-		public string Schema { get; set; }
-	}
-
-	/// <summary>
-	/// The database table of the dataset.
-	/// </summary>
-	public class DataSetTable
-	{
-		/// <summary>
-		/// The database table of the dataset.
-		/// </summary>
-		public string Table { get; set; }
 	}
 
 	/// <summary>
@@ -945,6 +808,57 @@ namespace Daf.Core.Plugins.Adf.IonStructure
 		public string Scale { get; set; }
 	}
 
+	/// <summary>
+	/// Element in collection of all linked service definitions in the project.
+	/// </summary>
+	public class LinkedService
+	{
+		/// <summary>
+		/// The URL containing the endpoints for this linked service.
+		/// </summary>
+		public string Url { get; set; }
+
+		/// <summary>
+		/// Whether server certificate validation should be enabled or not for this linked service.
+		/// </summary>
+		public bool? EnableServerCertificateValidation { get; set; }
+
+		/// <summary>
+		/// The authentication type.
+		/// </summary>
+		public AuthenticationTypeEnum? AuthenticationType { get; set; }
+
+		/// <summary>
+		/// The user name for accessing the linked service.
+		/// </summary>
+		public string UserName { get; set; }
+
+		/// <summary>
+		/// The connection string for accessing the linked service.
+		/// </summary>
+		public string ConnectionString { get; set; }
+
+		/// <summary>
+		/// Encrypted credential for accessing the linked service.
+		/// </summary>
+		public string EncryptedCredential { get; set; }
+
+		/// <summary>
+		/// URL for the function app containing the Azure Functions of the linked service.
+		/// </summary>
+		public string FunctionAppUrl { get; set; }
+
+		/// <summary>
+		/// The name of the object.
+		/// </summary>
+		public string Name { get; set; }
+
+		/// <summary>
+		/// The type of the linked service.
+		/// </summary>
+		public LinkedServiceTypeEnum Type { get; set; }
+	}
+
 	public enum AzureSqlTableColumnTypeEnum
 	{
 		nvarchar,
@@ -972,162 +886,10 @@ namespace Daf.Core.Plugins.Adf.IonStructure
 		OdbcTable,
 	}
 
-	/// <summary>
-	/// Element in collection of all linked service definitions in the project.
-	/// </summary>
-	public class LinkedService
-	{
-		/// <summary>
-		/// The properties of the linked service.
-		/// </summary>
-		public LinkedServiceProperty LinkedServiceProperties { get; set; }
-
-		/// <summary>
-		/// The name of the object.
-		/// </summary>
-		public string Name { get; set; }
-
-		/// <summary>
-		/// The type of the linked service.
-		/// </summary>
-		public LinkedServiceTypeEnum Type { get; set; }
-	}
-
-	/// <summary>
-	/// The properties of the linked service.
-	/// </summary>
-	public class LinkedServiceProperty
-	{
-		/// <summary>
-		/// Collection of all the type properties of this linked service.
-		/// </summary>
-		public LinkedServiceTypeProperty LinkedServiceTypeProperties { get; set; }
-	}
-
-	/// <summary>
-	/// Element in collection of all linked service definitions in the project.
-	/// </summary>
-	public class LinkedServiceTypeProperty
-	{
-		/// <summary>
-		/// The URL containing the endpoints for this linked service.
-		/// </summary>
-		public Url Url { get; set; }
-
-		/// <summary>
-		/// Whether server certificate validation should be enabled or not for this linked service.
-		/// </summary>
-		public EnableServerCertificateValidation EnableServerCertificateValidation { get; set; }
-
-		/// <summary>
-		/// The authentication type.
-		/// </summary>
-		public Authentication AuthenticationType { get; set; }
-
-		/// <summary>
-		/// The user name for accessing the linked service.
-		/// </summary>
-		public UserName UserName { get; set; }
-
-		/// <summary>
-		/// The connection string for accessing the linked service.
-		/// </summary>
-		public ConnectionString ConnectionString { get; set; }
-
-		/// <summary>
-		/// Encrypted credential for accessing the linked service.
-		/// </summary>
-		public EncryptedCredential EncryptedCredential { get; set; }
-
-		/// <summary>
-		/// URL for the function app containing the Azure Functions of the linked service.
-		/// </summary>
-		public FunctionAppUrl FunctionAppUrl { get; set; }
-	}
-
-	/// <summary>
-	/// The URL containing the endpoints for this linked service.
-	/// </summary>
-	public class Url
-	{
-		/// <summary>
-		/// The URL containing the endpoints for this linked service.
-		/// </summary>
-		public string UrlValue { get; set; }
-	}
-
-	/// <summary>
-	/// Whether server certificate validation should be enabled or not for this linked service.
-	/// </summary>
-	public class EnableServerCertificateValidation
-	{
-		/// <summary>
-		/// Whether server certificate validation should be enabled or not for this linked service.
-		/// </summary>
-		public bool? EnableServerCertificateValidationValue { get; set; }
-
-	}
-
-	/// <summary>
-	/// The authentication type.
-	/// </summary>
-	public class Authentication
-	{
-		/// <summary>
-		/// 
-		/// </summary>
-		public AuthenticationTypeEnum? AuthenticationTypeValue { get; set; }
-
-	}
-
 	public enum AuthenticationTypeEnum
 	{
 		Basic,
 		Anonymous,
-	}
-
-	/// <summary>
-	/// The user name for accessing the linked service.
-	/// </summary>
-	public class UserName
-	{
-		/// <summary>
-		/// The user name for accessing the linked service.
-		/// </summary>
-		public string UserNameValue { get; set; }
-	}
-
-	/// <summary>
-	/// The connection string for accessing the linked service.
-	/// </summary>
-	public class ConnectionString
-	{
-		/// <summary>
-		/// The connection string for accessing the linked service.
-		/// </summary>
-		public string ConnectionStringValue { get; set; }
-	}
-
-	/// <summary>
-	/// Encrypted credential for accessing the linked service.
-	/// </summary>
-	public class EncryptedCredential
-	{
-		/// <summary>
-		/// Encrypted credential for accessing the linked service.
-		/// </summary>
-		public string EncryptedCredentialValue { get; set; }
-	}
-
-	/// <summary>
-	/// URL for the function app containing the Azure Functions of the linked service.
-	/// </summary>
-	public class FunctionAppUrl
-	{
-		/// <summary>
-		/// URL for the function app.
-		/// </summary>
-		public string Url { get; set; }
 	}
 
 	public enum LinkedServiceTypeEnum

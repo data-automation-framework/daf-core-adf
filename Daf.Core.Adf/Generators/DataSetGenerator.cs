@@ -33,31 +33,26 @@ namespace Daf.Core.Plugins.Adf.Generators
 
 		public static void SetDataSetProperties(DataSet dataset, DataSetJson datasetJson)
 		{
-			if (dataset.DataSetProperties != null)
-			{
-				DataSetPropertyJson datasetPropertyJson = new();
+			DataSetPropertyJson datasetPropertyJson = new();
 
-				datasetPropertyJson.Type = dataset.Type.ToString();
+			datasetPropertyJson.Type = dataset.Type.ToString();
 
-				SetDataSetJsonSchema(dataset, datasetPropertyJson);
-				SetDataSetAzureSqlTableSchema(dataset, datasetPropertyJson);
-				SetDataSetLinkedServiceReference(dataset, datasetPropertyJson);
-				SetDataSetParameters(dataset, datasetPropertyJson);
-				SetDataSetTypeProperties(dataset, datasetPropertyJson);
+			SetDataSetJsonSchema(dataset, datasetPropertyJson);
+			SetDataSetAzureSqlTableSchema(dataset, datasetPropertyJson);
+			SetDataSetLinkedServiceReference(dataset, datasetPropertyJson);
+			SetDataSetParameters(dataset, datasetPropertyJson);
+			SetDataSetTypeProperties(dataset, datasetPropertyJson);
 
-				datasetJson.Properties = datasetPropertyJson;
-			}
+			datasetJson.Properties = datasetPropertyJson;
 		}
 
 		public static void SetDataSetParameters(DataSet dataset, DataSetPropertyJson dataSetPropertyJson)
 		{
-			DataSetProperty dataSetProperty = dataset.DataSetProperties;
-
-			if (dataSetProperty.Parameters != null)
+			if (dataset.Parameters != null)
 			{
 				dataSetPropertyJson.Parameters = new List<object>();
 
-				foreach (Parameter parameter in dataSetProperty.Parameters)
+				foreach (Parameter parameter in dataset.Parameters)
 				{
 					ParameterJson parameterJson = new()
 					{
@@ -78,9 +73,9 @@ namespace Daf.Core.Plugins.Adf.Generators
 
 		public static void SetDataSetJsonSchema(DataSet dataset, DataSetPropertyJson datasetPropertyJson)
 		{
-			if (dataset.DataSetProperties.JsonSchema != null)
+			if (dataset.JsonSchema != null)
 			{
-				JsonSchema jsonSchema = dataset.DataSetProperties.JsonSchema;
+				JsonSchema jsonSchema = dataset.JsonSchema;
 
 				AzureJsonSchema jsonSchemaJson = new();
 				JsonSchemaItem jsonSchemaItemJson = new();
@@ -98,9 +93,9 @@ namespace Daf.Core.Plugins.Adf.Generators
 
 		public static void SetDataSetAzureSqlTableSchema(DataSet dataset, DataSetPropertyJson datasetPropertyJson)
 		{
-			if (dataset.DataSetProperties.AzureSqlTableSchema != null)
+			if (dataset.AzureSqlTableSchema != null)
 			{
-				AzureSqlTableSchema azureSqlTableSchema = dataset.DataSetProperties.AzureSqlTableSchema;
+				AzureSqlTableSchema azureSqlTableSchema = dataset.AzureSqlTableSchema;
 				List<AzureSqlTableSchemaJson> schemaJsons = new();
 
 				if (azureSqlTableSchema.AzureSqlTableColumns != null)
@@ -135,11 +130,11 @@ namespace Daf.Core.Plugins.Adf.Generators
 
 		public static void SetDataSetLinkedServiceReference(DataSet dataset, DataSetPropertyJson datasetPropertyJson)
 		{
-			if (dataset.DataSetProperties.LinkedService != null)
+			if (dataset.LinkedService != null)
 			{
 				LinkedServiceNameJson linkedServiceNameJson = new();
 
-				linkedServiceNameJson.ReferenceName = dataset.DataSetProperties.LinkedService;
+				linkedServiceNameJson.ReferenceName = dataset.LinkedService;
 
 				datasetPropertyJson.LinkedServiceName = linkedServiceNameJson;
 			}
@@ -147,80 +142,75 @@ namespace Daf.Core.Plugins.Adf.Generators
 
 		public static void SetDataSetTypeProperties(DataSet dataset, DataSetPropertyJson datasetPropertyJson)
 		{
-			if (dataset.DataSetProperties.DataSetTypeProperties != null)
+			DataSetTypePropertyJson datasetTypePropertyJson = new();
+
+			SetDataSetLocation(dataset, datasetTypePropertyJson);
+
+			if (dataset.RelativeUrl != null && dataset.RelativeUrl.Contains("@"))
 			{
-				DataSetTypeProperty typeProperties = dataset.DataSetProperties.DataSetTypeProperties;
+				DataSetRelativeUrlJson relativeUrlJson = new();
 
-				DataSetTypePropertyJson datasetTypePropertyJson = new();
+				relativeUrlJson.Type = ValueTypeEnum.Expression.ToString();
+				relativeUrlJson.Value = dataset.RelativeUrl;
 
-				SetDataSetLocation(typeProperties, datasetTypePropertyJson);
-
-				if (typeProperties.RelativeUrl != null && typeProperties.RelativeUrl.RelativeUrlValue.Contains("@"))
-				{
-					DataSetRelativeUrlJson relativeUrlJson = new();
-
-					relativeUrlJson.Type = ValueTypeEnum.Expression.ToString();
-					relativeUrlJson.Value = typeProperties.RelativeUrl.RelativeUrlValue;
-
-					datasetTypePropertyJson.RelativeUrl = relativeUrlJson;
-				}
-				else if (typeProperties.RelativeUrl != null)
-				{
-					datasetTypePropertyJson.RelativeUrl = typeProperties.RelativeUrl.RelativeUrlValue;
-				}
-
-				if (typeProperties.Schema != null)
-				{
-					datasetTypePropertyJson.Schema = typeProperties.Schema.Schema;
-				}
-
-				if (typeProperties.Table != null)
-				{
-					datasetTypePropertyJson.Table = typeProperties.Table.Table;
-				}
-
-				if (typeProperties.Encoding != null)
-				{
-					datasetTypePropertyJson.EncodingName = typeProperties.Encoding;
-				}
-
-				datasetPropertyJson.TypeProperties = datasetTypePropertyJson;
+				datasetTypePropertyJson.RelativeUrl = relativeUrlJson;
 			}
+			else if (dataset.RelativeUrl != null)
+			{
+				datasetTypePropertyJson.RelativeUrl = dataset.RelativeUrl;
+			}
+
+			if (dataset.Schema != null)
+			{
+				datasetTypePropertyJson.Schema = dataset.Schema;
+			}
+
+			if (dataset.Table != null)
+			{
+				datasetTypePropertyJson.Table = dataset.Table;
+			}
+
+			if (dataset.Encoding != null)
+			{
+				datasetTypePropertyJson.EncodingName = dataset.Encoding;
+			}
+
+			datasetPropertyJson.TypeProperties = datasetTypePropertyJson;
 		}
 
-		public static void SetDataSetLocation(DataSetTypeProperty typeProperties, DataSetTypePropertyJson datasetTypePropertyJson)
+		public static void SetDataSetLocation(DataSet dataset, DataSetTypePropertyJson datasetTypePropertyJson)
 		{
-			if (typeProperties.Location != null)
+			if (dataset.Location != null)
 			{
 				LocationJson locationJson = new();
 
-				locationJson.Type = typeProperties.Location.Type.ToString();
+				locationJson.Type = dataset.Location.Type.ToString();
 
-				SetDataSetContainer(typeProperties, locationJson);
-				SetDataSetFileName(typeProperties, locationJson);
+				SetDataSetContainer(dataset, locationJson);
+				SetDataSetFileName(dataset, locationJson);
 
 				datasetTypePropertyJson.Location = locationJson;
 			}
 		}
 
-		public static void SetDataSetContainer(DataSetTypeProperty typeProperties, LocationJson locationJson)
+		public static void SetDataSetContainer(DataSet dataset, LocationJson locationJson)
 		{
-			if (typeProperties.Location.Container != null)
+			if (dataset.Location.Container != null)
 			{
-				locationJson.Container = typeProperties.Location.Container?.Name;
+				locationJson.Container = dataset.Location.Container?.Name;
 
-				if (typeProperties.Location.Container?.FolderPath != null)
+				if (dataset.Location.Container?.FolderPath != null)
 				{
-					locationJson.FolderPath = typeProperties.Location.Container.FolderPath;
+					locationJson.FolderPath = dataset.Location.Container.FolderPath;
 				}
 			}
 		}
 
-		public static void SetDataSetFileName(DataSetTypeProperty typeProperties, LocationJson locationJson)
+		public static void SetDataSetFileName(DataSet dataset, LocationJson locationJson)
 		{
-			if (typeProperties.Location.FileName != null)
+			if (dataset.Location.FileName != null)
 			{
-				FileName fileName = typeProperties.Location.FileName;
+				FileName fileName = dataset.Location.FileName;
 
 				if (fileName.Type == ValueTypeEnum.Expression)
 				{
