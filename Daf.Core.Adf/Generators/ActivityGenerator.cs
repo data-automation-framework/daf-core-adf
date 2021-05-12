@@ -527,7 +527,7 @@ namespace Daf.Core.Adf.Generators
 				case DataSourceTypeEnum.OdbcSource:
 					sourceJson = new OdbcSourceJson()
 					{
-						Query = new { source.SqlQuery, Type = "Expression" }
+						Query = new { Value = source.SqlQuery, Type = "Expression" }
 					};
 					break;
 				case DataSourceTypeEnum.RestSource:
