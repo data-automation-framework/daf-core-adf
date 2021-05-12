@@ -38,7 +38,7 @@ jobs:
           tag: v${{ steps.nbgv.outputs.SimpleVersion }}
       - name: Build changelog
         id: build_changelog
-        uses: mikepenz/release-changelog-builder-action@v1.7.3
+        uses: mikepenz/release-changelog-builder-action@v1.8.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -46,7 +46,7 @@ jobs:
           configuration: "configs/configuration.json"
           toTag: v${{ steps.nbgv.outputs.SimpleVersion }}
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1.7.2
+        uses: actions/setup-dotnet@v1.8.0
         with:
           dotnet-version: 5.0.x # SDK Version to use.
           source-url: https://api.nuget.org/v3/index.json
