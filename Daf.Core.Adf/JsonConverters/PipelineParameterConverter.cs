@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Daf.Core.Plugins.Adf.JsonStructure;
+using Daf.Core.Adf.JsonStructure;
 
 namespace AzureDataFactoryProjects.JsonConverters
 {

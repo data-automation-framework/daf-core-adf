@@ -3,11 +3,11 @@
 
 using System;
 using System.Globalization;
-using Daf.Core.Plugins.Adf.IonStructure;
+using Daf.Core.Adf.IonStructure;
 using Daf.Core.Sdk;
 using Daf.Core.Sdk.Ion.Reader;
 
-namespace Daf.Core.Plugins.Adf
+namespace Daf.Core.Adf
 {
 	public class AdfPlugin : IPlugin
 	{

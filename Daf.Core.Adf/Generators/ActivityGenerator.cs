@@ -10,10 +10,10 @@ using Adf.JsonStructure.Activities;
 using Adf.JsonStructure.Sinks;
 using Adf.JsonStructure.Sources;
 using Adf.JsonStructure.TypeProperties;
-using Daf.Core.Plugins.Adf.IonStructure;
-using Daf.Core.Plugins.Adf.JsonStructure;
+using Daf.Core.Adf.IonStructure;
+using Daf.Core.Adf.JsonStructure;
 
-namespace Daf.Core.Plugins.Adf.Generators
+namespace Daf.Core.Adf.Generators
 {
 	public static class ActivityGenerator
 	{

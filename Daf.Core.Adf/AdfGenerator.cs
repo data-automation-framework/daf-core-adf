@@ -6,12 +6,12 @@ using System.IO;
 using System.Text;
 using System.Text.Json;
 using System.Linq;
-using Daf.Core.Plugins.Adf.Generators;
-using Daf.Core.Plugins.Adf.IonStructure;
-using Daf.Core.Plugins.Adf.JsonStructure;
+using Daf.Core.Adf.Generators;
+using Daf.Core.Adf.IonStructure;
+using Daf.Core.Adf.JsonStructure;
 using Daf.Core.Sdk;
 
-namespace Daf.Core.Plugins.Adf
+namespace Daf.Core.Adf
 {
 	public static class AdfGenerator
 	{

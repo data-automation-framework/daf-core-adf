@@ -2,7 +2,7 @@
 // Copyright © 2021 Oscar Björhn, Petter Löfgren and contributors
 
 using System.Collections.Generic;
-using Daf.Core.Plugins.Adf.IonStructure;
+using Daf.Core.Adf.IonStructure;
 
 namespace Adf.JsonStructure.Activities
 {

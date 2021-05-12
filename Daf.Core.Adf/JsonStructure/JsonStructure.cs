@@ -4,10 +4,10 @@
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using AzureDataFactoryProjects.JsonConverters;
-using Daf.Core.Plugins.Adf.IonStructure;
+using Daf.Core.Adf.IonStructure;
 
 #nullable disable
-namespace Daf.Core.Plugins.Adf.JsonStructure
+namespace Daf.Core.Adf.JsonStructure
 {
 	public class ProjectJson
 	{

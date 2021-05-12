@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using Daf.Core.Sdk;
 
 #nullable disable
-namespace Daf.Core.Plugins.Adf.IonStructure
+namespace Daf.Core.Adf.IonStructure
 {
 	/// <summary>
 	/// Root node for Azure Data Factory projects.

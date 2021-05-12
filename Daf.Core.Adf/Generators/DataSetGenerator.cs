@@ -3,10 +3,10 @@
 
 using System.Collections.Generic;
 using System.Globalization;
-using Daf.Core.Plugins.Adf.IonStructure;
-using Daf.Core.Plugins.Adf.JsonStructure;
+using Daf.Core.Adf.IonStructure;
+using Daf.Core.Adf.JsonStructure;
 
-namespace Daf.Core.Plugins.Adf.Generators
+namespace Daf.Core.Adf.Generators
 {
 	public static class DataSetGenerator
 	{

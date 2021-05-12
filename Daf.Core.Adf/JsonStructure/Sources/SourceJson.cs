@@ -3,8 +3,8 @@
 
 #nullable disable
 using System.Collections.Generic;
-using Daf.Core.Plugins.Adf.IonStructure;
-using Daf.Core.Plugins.Adf.JsonStructure;
+using Daf.Core.Adf.IonStructure;
+using Daf.Core.Adf.JsonStructure;
 
 namespace Adf.JsonStructure.Sources
 {

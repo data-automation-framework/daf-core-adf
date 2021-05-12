@@ -2,7 +2,7 @@
 // Copyright © 2021 Oscar Björhn, Petter Löfgren and contributors
 
 #nullable disable
-using Daf.Core.Plugins.Adf.JsonStructure;
+using Daf.Core.Adf.JsonStructure;
 
 namespace Adf.JsonStructure.TypeProperties
 {
