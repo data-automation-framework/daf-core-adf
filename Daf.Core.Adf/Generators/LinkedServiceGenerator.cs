@@ -13,7 +13,7 @@ namespace Daf.Core.Adf.Generators
 		{
 			if (projectNode?.LinkedServices != null)
 			{
-				List<LinkedServiceJson> linkedServices = new();
+				List<object> linkedServices = new();
 
 				foreach (LinkedService linkedService in projectNode.LinkedServices)
 				{
@@ -31,36 +31,26 @@ namespace Daf.Core.Adf.Generators
 
 		public static void SetLinkedServiceProperties(LinkedService linkedService, LinkedServiceJson linkedServiceJson)
 		{
-			if (linkedService.LinkedServiceProperties != null)
-			{
-				LinkedServiceProperty linkedServiceProperty = linkedService.LinkedServiceProperties;
+			LinkedServicePropertyJson linkedServicePropertyJson = new();
+			linkedServicePropertyJson.Type = linkedService.Type.ToString();
 
-				LinkedServicePropertyJson linkedServicePropertyJson = new();
-				linkedServicePropertyJson.Type = linkedService.Type.ToString();
+			SetLinkedServiceTypeProperties(linkedService, linkedServicePropertyJson);
 
-				SetLinkedServiceTypeProperties(linkedServiceProperty, linkedServicePropertyJson);
-
-				linkedServiceJson.Properties = linkedServicePropertyJson;
-			}
+			linkedServiceJson.Properties = linkedServicePropertyJson;
 		}
 
-		public static void SetLinkedServiceTypeProperties(LinkedServiceProperty linkedServiceProperty, LinkedServicePropertyJson linkedServicePropertyJson)
+		public static void SetLinkedServiceTypeProperties(LinkedService linkedService, LinkedServicePropertyJson linkedServicePropertyJson)
 		{
-			if (linkedServiceProperty.LinkedServiceTypeProperties != null)
-			{
-				LinkedServiceTypeProperty linkedServiceTypeProperty = linkedServiceProperty.LinkedServiceTypeProperties;
+			LinkedServiceTypePropertyJson linkedServiceTypePropertyJson = new();
+			linkedServiceTypePropertyJson.Url = linkedService.Url;
+			linkedServiceTypePropertyJson.EnableServerCertificateValidation = linkedService.EnableServerCertificateValidation;
+			linkedServiceTypePropertyJson.AuthenticationType = linkedService.AuthenticationType.ToString();
+			linkedServiceTypePropertyJson.ConnectionString = linkedService.ConnectionString;
+			linkedServiceTypePropertyJson.UserName = linkedService.UserName;
+			linkedServiceTypePropertyJson.FunctionAppUrl = linkedService.FunctionAppUrl;
+			linkedServiceTypePropertyJson.EncryptedCredential = linkedService.EncryptedCredential;
 
-				LinkedServiceTypePropertyJson linkedServiceTypePropertyJson = new();
-				linkedServiceTypePropertyJson.Url = linkedServiceTypeProperty.Url?.UrlValue;
-				linkedServiceTypePropertyJson.EnableServerCertificateValidation = linkedServiceTypeProperty.EnableServerCertificateValidation?.EnableServerCertificateValidationValue;
-				linkedServiceTypePropertyJson.AuthenticationType = linkedServiceTypeProperty.AuthenticationType?.AuthenticationTypeValue.ToString();
-				linkedServiceTypePropertyJson.ConnectionString = linkedServiceTypeProperty.ConnectionString?.ConnectionStringValue;
-				linkedServiceTypePropertyJson.UserName = linkedServiceTypeProperty.UserName?.UserNameValue;
-				linkedServiceTypePropertyJson.FunctionAppUrl = linkedServiceTypeProperty.FunctionAppUrl?.Url;
-				linkedServiceTypePropertyJson.EncryptedCredential = linkedServiceTypeProperty.EncryptedCredential?.EncryptedCredentialValue;
-
-				linkedServicePropertyJson.TypeProperties = linkedServiceTypePropertyJson;
-			}
+			linkedServicePropertyJson.TypeProperties = linkedServiceTypePropertyJson;
 		}
 	}
 }

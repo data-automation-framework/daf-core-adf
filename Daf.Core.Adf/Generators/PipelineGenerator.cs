@@ -13,7 +13,7 @@ namespace Daf.Core.Adf.Generators
 		{
 			if (projectNode?.Pipelines != null)
 			{
-				List<PipelineJson> pipelines = new();
+				List<object> pipelines = new();
 
 				foreach (Pipeline pipeline in projectNode.Pipelines)
 				{
@@ -39,7 +39,7 @@ namespace Daf.Core.Adf.Generators
 		{
 			if (pipeline.PipelineProperties.Parameters != null)
 			{
-				propertyJson.Parameters = new List<ParameterJson>();
+				propertyJson.Parameters = new List<object>();
 
 				foreach (Parameter parameter in pipeline.PipelineProperties.Parameters)
 				{
@@ -63,7 +63,7 @@ namespace Daf.Core.Adf.Generators
 		{
 			if (pipeline.PipelineProperties.Variables != null)
 			{
-				propertyJson.Variables = new List<VariableJson>();
+				propertyJson.Variables = new List<object>();
 
 				foreach (Variable variable in pipeline.PipelineProperties.Variables)
 				{

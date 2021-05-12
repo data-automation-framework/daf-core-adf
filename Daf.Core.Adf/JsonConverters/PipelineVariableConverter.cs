@@ -8,16 +8,16 @@ using System.Text.Json.Serialization;
 using Daf.Core.Adf.IonStructure;
 using Daf.Core.Adf.JsonStructure;
 
-namespace AzureDataFactoryProjects.JsonConverters
+namespace Daf.Core.Adf.JsonConverters
 {
-	public class PipelineVariableConverter : JsonConverter<List<VariableJson>>
+	public class PipelineVariableConverter : JsonConverter<List<object>>
 	{
-		public override List<VariableJson> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+		public override List<object> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
 		{
 			throw new Exception("Not implemented!");
 		}
 
-		public override void Write(Utf8JsonWriter writer, List<VariableJson> variables, JsonSerializerOptions options)
+		public override void Write(Utf8JsonWriter writer, List<object> variables, JsonSerializerOptions options)
 		{
 			if (variables.Count <= 0)
 			{
@@ -28,7 +28,7 @@ namespace AzureDataFactoryProjects.JsonConverters
 
 			for (int i = 0; i < variables.Count; i++)
 			{
-				VariableJson variable = variables[i];
+				VariableJson variable = (VariableJson)variables[i];
 
 				writer.WritePropertyName(variable.Name);
 

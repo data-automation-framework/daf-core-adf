@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.Json;
+using System.Linq;
 using Daf.Core.Adf.Generators;
 using Daf.Core.Adf.IonStructure;
 using Daf.Core.Adf.JsonStructure;
@@ -24,12 +25,12 @@ namespace Daf.Core.Adf
 			{
 				WriteIndented = true,
 				IgnoreNullValues = true,
-				PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+				PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
 			};
 
-			WriteJson(projectJson.DataSets, projectOutputPath, options);
-			WriteJson(projectJson.LinkedServices, projectOutputPath, options);
-			WriteJson(projectJson.Pipelines, projectOutputPath, options);
+			WriteJson(projectJson.DataSets.Select(x => (DataSetJson)x).ToList(), projectOutputPath, options);
+			WriteJson(projectJson.LinkedServices.Select(x => (LinkedServiceJson)x).ToList(), projectOutputPath, options);
+			WriteJson(projectJson.Pipelines.Select(x => (PipelineJson)x).ToList(), projectOutputPath, options);
 		}
 
 		public static void WriteJson<T>(List<T> jsonObjects, string projectOutputPath, JsonSerializerOptions options) where T : IJsonInterface
@@ -42,7 +43,7 @@ namespace Daf.Core.Adf
 
 			foreach (T jsonObject in jsonObjects)
 			{
-				File.WriteAllText(Path.Combine(outputPath, jsonObject.Name + ".json"), JsonSerializer.Serialize(jsonObject, options));
+				File.WriteAllText(Path.Combine(outputPath, jsonObject.Name + ".json"), JsonSerializer.Serialize<object>(jsonObject, options));
 			}
 		}
 

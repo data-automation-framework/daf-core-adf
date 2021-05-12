@@ -1,11 +1,16 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright © 2021 Oscar Björhn, Petter Löfgren and contributors
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using Daf.Core.Adf.IonStructure;
 using Daf.Core.Adf.JsonStructure;
+using Daf.Core.Adf.JsonStructure.Activities;
+using Daf.Core.Adf.JsonStructure.Sinks;
+using Daf.Core.Adf.JsonStructure.Sources;
+using Daf.Core.Adf.JsonStructure.TypeProperties;
 
 namespace Daf.Core.Adf.Generators
 {
@@ -15,55 +20,85 @@ namespace Daf.Core.Adf.Generators
 		{
 			if (pipeline.PipelineProperties?.Activities != null)
 			{
-				List<ActivityJson> activities = new();
+				propertyJson.Activities = GetActivityJsonList(pipeline.PipelineProperties.Activities);
+			}
+		}
 
-				foreach (Activity activity in pipeline.PipelineProperties.Activities)
+		private static List<object> GetActivityJsonList(List<Activity> inputActivities, bool isInternal = false)
+		{
+			List<object> activities = new();
+
+			foreach (Activity activity in inputActivities)
+			{
+				ActivityJson activityJson;
+
+				switch (activity)
 				{
-					ActivityJson activityJson = new();
-					activityJson.Name = activity.Name;
-					activityJson.Type = activity.Type.ToString();
-
-					SetActivityInputsOutputs(activity, activityJson);
-					SetActivityPolicy(activity, activityJson);
-					SetActivityDependencies(activity, activityJson);
-					SetActivityLinkedServiceReference(activity, activityJson);
-					SetActivityTypeProperties(activity, activityJson);
-					SetActivityInputs(activity, activityJson);
-					SetActivityOutputs(activity, activityJson);
-
-					activities.Add(activityJson);
+					// TODO: all of these get functions need to throw exceptions if something is null where it shouldn't be.
+					// TODO: Activity will likely become an abstract superclass in the ionstructure simplifying this behavior.
+					case SqlServerStoredProcedure sqlActivity:
+						activityJson = GetSqlServerStoredProcedureJson(sqlActivity);
+						activityJson.Type = ActivityTypeEnum.SqlServerStoredProcedure.ToString();
+						break;
+					case Lookup lookupActivity:
+						activityJson = GetLookupJson(lookupActivity);
+						activityJson.Type = ActivityTypeEnum.Lookup.ToString();
+						break;
+					case AzureFunction azureFunctionActivity:
+						activityJson = GetAzureFunctionActivityJson(azureFunctionActivity);
+						activityJson.Type = ActivityTypeEnum.AzureFunctionActivity.ToString();
+						break;
+					case Until untilActivity:
+						if (isInternal)
+							throw new SystemException($"An Until activity cannot be nested within another activity!");
+						activityJson = GetUntilJson(untilActivity);
+						activityJson.Type = ActivityTypeEnum.Until.ToString();
+						break;
+					case Wait waitActivity:
+						activityJson = GetWaitJson(waitActivity);
+						activityJson.Type = ActivityTypeEnum.Wait.ToString();
+						break;
+					case Web webActivity:
+						activityJson = GetWebActivityJson(webActivity);
+						activityJson.Type = ActivityTypeEnum.WebActivity.ToString();
+						break;
+					case SetVariable setVariableActivity:
+						activityJson = GetSetVariableJson(setVariableActivity);
+						activityJson.Type = ActivityTypeEnum.SetVariable.ToString();
+						break;
+					case IfCondition ifActivity:
+						if (isInternal)
+							throw new SystemException($"An IfCondition activity cannot be nested within another activity!");
+						activityJson = GetIfConditionJson(ifActivity);
+						activityJson.Type = ActivityTypeEnum.IfCondition.ToString();
+						break;
+					case ExecutePipeline executePipelineActivity:
+						activityJson = GetExecutePipelineJson(executePipelineActivity);
+						activityJson.Type = ActivityTypeEnum.ExecutePipeline.ToString();
+						break;
+					case Copy copyActivity:
+						activityJson = GetCopyJson(copyActivity);
+						activityJson.Type = ActivityTypeEnum.Copy.ToString();
+						break;
+					default:
+						throw new NotImplementedException($"Functionality for activities of type {activity.GetType().Name} not implemented!");
 				}
 
-				propertyJson.Activities = activities;
-			}
-		}
+				activityJson.Name = activity.Name;
 
-		public static void SetActivityInputsOutputs(Activity activity, ActivityJson activityJson)
-		{
-			if (activity.Type is ActivityTypeEnum.Wait or ActivityTypeEnum.WebActivity or ActivityTypeEnum.SetVariable or ActivityTypeEnum.IfCondition or ActivityTypeEnum.ExecutePipeline)
-			{
-				activityJson.Inputs = null;
-				activityJson.Outputs = null;
-			}
-		}
+				SetActivityDependencies(activity, activityJson);
 
-		public static void SetActivityPolicy(Activity activity, ActivityJson activityJson)
-		{
-			if (activity.Type is ActivityTypeEnum.Until or ActivityTypeEnum.Wait or ActivityTypeEnum.SetVariable or ActivityTypeEnum.IfCondition or ActivityTypeEnum.ExecutePipeline)
-			{
-				activityJson.Policy = null;
+				activities.Add(activityJson);
 			}
-			else
-			{
-				activityJson.Policy = new PolicyJson();
-			}
+
+			return activities;
 		}
 
 		public static void SetActivityDependencies(Activity activity, ActivityJson activityJson)
 		{
 			if (activity.Dependencies != null)
 			{
-				List<DependsOnJson> dependencies = new();
+				List<object> dependencies = new();
 				foreach (Dependency dependency in activity.Dependencies)
 				{
 					DependsOnJson dependsOnJson = new();
@@ -85,374 +120,25 @@ namespace Daf.Core.Adf.Generators
 			}
 		}
 
-		public static void SetActivityLinkedServiceReference(Activity activity, ActivityJson activityJson)
+		private static SqlServerStoredProcedureJson GetSqlServerStoredProcedureJson(SqlServerStoredProcedure activity)
 		{
-			if (activity.LinkedServiceReference != null)
+			SqlServerStoredProcedureJson returnJson = new();
+
+			if (activity.LinkedService != null)
 			{
-				LinkedServiceNameJson linkedServiceNameJson = new();
-				linkedServiceNameJson.ReferenceName = activity.LinkedServiceReference.Name;
-				activityJson.LinkedServiceName = linkedServiceNameJson;
-			}
-		}
-
-		public static void SetEnableStaging(Activity activity, TypePropertyJson typePropertyJson)
-		{
-			if (activity.Type is not ActivityTypeEnum.Wait and not ActivityTypeEnum.WebActivity and not ActivityTypeEnum.ExecutePipeline)
-			{
-				typePropertyJson.EnableStaging = false;
-			}
-		}
-
-		public static void SetWaitTimeInSeconds(TypePropertyList typeProperty, TypePropertyJson typePropertyJson)
-		{
-			if (typeProperty.WaitTimeInSeconds != null)
-			{
-				typePropertyJson.WaitTimeInSeconds = typeProperty.WaitTimeInSeconds.WaitTimeInSeconds;
-			}
-		}
-
-		public static void SetUrl(TypePropertyList typeProperty, TypePropertyJson typePropertyJson)
-		{
-			if (typeProperty.Url != null)
-			{
-				typePropertyJson.Url = typeProperty.Url.UrlValue;
-			}
-		}
-
-		public static void SetActivityTypeProperties(Activity activity, ActivityJson activityJson)
-		{
-			if (activity.ActivityTypeProperties != null)
-			{
-				TypePropertyList typeProperty = activity.ActivityTypeProperties;
-				TypePropertyJson typePropertyJson = new();
-
-				SetEnableStaging(activity, typePropertyJson);
-
-				SetWaitTimeInSeconds(typeProperty, typePropertyJson);
-
-				SetSqlServerStoredProcedureDefaults(activity, activityJson, typePropertyJson);
-				SetSqlServerStoredProcedureName(typeProperty, typePropertyJson);
-				SetSqlServerStoredProcedureParameters(typeProperty, typePropertyJson);
-
-				SetAzureFunctionDefaults(activity, activityJson, typePropertyJson);
-				SetFunctionName(typeProperty, typePropertyJson);
-				SetMethod(typeProperty, typePropertyJson);
-				SetBody(typeProperty, activity, typePropertyJson);
-
-				SetExpression(typeProperty, typePropertyJson);
-				SetTimeout(activity, typePropertyJson);
-				SetInternalActivities(typeProperty, typePropertyJson);
-
-				SetSource(typeProperty, activityJson, typePropertyJson);
-				SetSink(typeProperty, typePropertyJson);
-				SetLookupDataSet(typeProperty, typePropertyJson);
-				SetTranslator(typeProperty, typePropertyJson);
-
-				SetExecutePipeline(typeProperty, typePropertyJson);
-
-				SetVariableNameValue(typeProperty, typePropertyJson);
-
-				SetUrl(typeProperty, typePropertyJson);
-
-				activityJson.TypeProperties = typePropertyJson;
-			}
-		}
-
-		public static void SetExecutePipeline(TypePropertyList typeProperty, TypePropertyJson typePropertyJson)
-		{
-			if (typeProperty.Pipeline != null)
-			{
-				ExecutePipeline executePipeline = typeProperty.Pipeline;
-
-				ExecutePipelineJson executePipelineJson = new();
-
-				executePipelineJson.ReferenceName = executePipeline.ReferenceName;
-
-				typePropertyJson.Pipeline = executePipelineJson;
-
-				typePropertyJson.WaitOnCompletion = typeProperty.Pipeline.WaitOnCompletion;
-
-				typePropertyJson.Parameters = new List<ParameterJson>();
-
-				foreach (Parameter parameter in typeProperty.Pipeline.Parameters)
-				{
-					ParameterJson parameterJson = new()
-					{
-						Name = parameter.Name,
-						Type = parameter.Type,
-						Value = parameter.Value
-					};
-
-					typePropertyJson.Parameters.Add(parameterJson);
-				}
-			}
-		}
-
-		public static void SetVariableNameValue(TypePropertyList typeProperty, TypePropertyJson typePropertyJson)
-		{
-			if (typeProperty.SetVariable != null)
-			{
-				typePropertyJson.EnableStaging = null;
-				typePropertyJson.VariableName = typeProperty.SetVariable.Name;
-				typePropertyJson.Value = typeProperty.SetVariable.Value;
-			}
-		}
-
-		public static void SetInternalActivities(TypePropertyList typeProperty, TypePropertyJson typePropertyJson)
-		{
-			if (typeProperty.Activities != null)
-			{
-				List<ActivityJson> activities = new();
-
-				foreach (Activity activity in typeProperty.Activities)
-				{
-					ActivityJson activityJson = new();
-					activityJson.Name = activity.Name;
-					activityJson.Type = activity.Type.ToString();
-
-					SetActivityInputsOutputs(activity, activityJson);
-					SetActivityPolicy(activity, activityJson);
-					SetActivityDependencies(activity, activityJson);
-					SetActivityLinkedServiceReference(activity, activityJson);
-					SetActivityTypeProperties(activity, activityJson);
-					SetActivityInputs(activity, activityJson);
-					SetActivityOutputs(activity, activityJson);
-
-					activities.Add(activityJson);
-				}
-
-				if (activities.Count > 0)
-				{
-					typePropertyJson.Activities = activities;
-				}
+				((LinkedServiceNameJson)returnJson.LinkedServiceName).ReferenceName = activity.LinkedService;
 			}
 
-			if (typeProperty.IfFalseActivities != null)
+			SqlServerStoredProcedureTypePropertyJson typePropertyJson = new();
+
+			if (activity.ProcedureName != null)
 			{
-				List<ActivityJson> activities = new();
-
-				foreach (Activity activity in typeProperty.IfFalseActivities)
-				{
-					ActivityJson activityJson = new();
-					activityJson.Name = activity.Name;
-					activityJson.Type = activity.Type.ToString();
-
-					SetActivityInputsOutputs(activity, activityJson);
-					SetActivityPolicy(activity, activityJson);
-					SetActivityDependencies(activity, activityJson);
-					SetActivityLinkedServiceReference(activity, activityJson);
-					SetActivityTypeProperties(activity, activityJson);
-					SetActivityInputs(activity, activityJson);
-					SetActivityOutputs(activity, activityJson);
-
-					activities.Add(activityJson);
-				}
-
-				if (activities.Count > 0)
-				{
-					typePropertyJson.IfFalseActivities = activities;
-				}
+				typePropertyJson.StoredProcedureName = activity.ProcedureName;
 			}
 
-			if (typeProperty.IfTrueActivities != null)
+			if (activity.StoredProcedureParameters != null)
 			{
-				List<ActivityJson> activities = new();
-
-				foreach (Activity activity in typeProperty.IfTrueActivities)
-				{
-					ActivityJson activityJson = new();
-					activityJson.Name = activity.Name;
-					activityJson.Type = activity.Type.ToString();
-
-					SetActivityInputsOutputs(activity, activityJson);
-					SetActivityPolicy(activity, activityJson);
-					SetActivityDependencies(activity, activityJson);
-					SetActivityLinkedServiceReference(activity, activityJson);
-					SetActivityTypeProperties(activity, activityJson);
-					SetActivityInputs(activity, activityJson);
-					SetActivityOutputs(activity, activityJson);
-
-					activities.Add(activityJson);
-				}
-
-				if (activities.Count > 0)
-				{
-					typePropertyJson.IfTrueActivities = activities;
-				}
-			}
-		}
-
-		public static void SetExpression(TypePropertyList typeProperty, TypePropertyJson typePropertyJson)
-		{
-			if (typeProperty.Expression != null)
-			{
-				typePropertyJson.Expression = new ExpressionJson()
-				{
-					Value = typeProperty.Expression.Value
-				};
-			}
-		}
-
-		public static void SetTimeout(Activity activity, TypePropertyJson typePropertyJson)
-		{
-			if (activity.Type == ActivityTypeEnum.Until)
-			{
-				if (!string.IsNullOrEmpty(activity.TimeOut))
-				{
-					typePropertyJson.TimeOut = activity.TimeOut;
-				}
-				else
-				{
-					typePropertyJson.TimeOut = "7.00:00:00";
-				}
-			}
-		}
-
-		public static void SetAzureFunctionDefaults(Activity activity, ActivityJson activityJson, TypePropertyJson typePropertyJson)
-		{
-			if (activity.Type == ActivityTypeEnum.AzureFunctionActivity)
-			{
-				typePropertyJson.EnableStaging = null;
-				activityJson.Inputs = null;
-				activityJson.Outputs = null;
-			}
-		}
-
-		public static void SetFunctionName(TypePropertyList typeProperty, TypePropertyJson typePropertyJson)
-		{
-			if (typeProperty.FunctionName != null)
-			{
-				typePropertyJson.FunctionName = typeProperty.FunctionName.Name;
-			}
-		}
-
-		public static void SetMethod(TypePropertyList typeProperty, TypePropertyJson typePropertyJson)
-		{
-			if (typeProperty.Method != null)
-			{
-				typePropertyJson.Method = typeProperty.Method.Type.ToString();
-			}
-		}
-
-		public static void SetBody(TypePropertyList typeProperty, Activity activity, TypePropertyJson typePropertyJson)
-		{
-			if (typeProperty.Body != null)
-			{
-				typePropertyJson.Body = JsonSerializer.Deserialize<object>(typeProperty.Body.Value);
-			}
-			else if (activity.Type == ActivityTypeEnum.WebActivity)
-			{
-				typePropertyJson.Body = "{}";
-			}
-		}
-
-		public static void SetActivityInputs(Activity activity, ActivityJson activityJson)
-		{
-			if (activity.Inputs != null && activity.Type != ActivityTypeEnum.Wait)
-			{
-				foreach (Input input in activity.Inputs)
-				{
-					InputJson inputJson = new();
-
-					inputJson.ReferenceName = input.Name;
-
-					SetActivityInputParameters(input, inputJson);
-
-					activityJson.Inputs.Add(inputJson);
-				}
-			}
-		}
-
-		public static void SetActivityInputParameters(Input input, InputJson inputJson)
-		{
-			if (input.Parameters != null)
-			{
-				inputJson.Parameters = new List<ParameterJson>();
-
-				foreach (Parameter parameter in input.Parameters)
-				{
-					ParameterJson parameterJson = new()
-					{
-						Name = parameter.Name,
-						Type = parameter.Type,
-						Value = parameter.Value
-					};
-
-					inputJson.Parameters.Add(parameterJson);
-				}
-
-				if (inputJson.Parameters.Count == 0)
-				{
-					inputJson.Parameters = null;
-				}
-			}
-		}
-
-		public static void SetActivityOutputs(Activity activity, ActivityJson activityJson)
-		{
-			if (activity.Outputs != null)
-			{
-				foreach (Output output in activity.Outputs)
-				{
-					OutputJson outputJson = new();
-
-					outputJson.ReferenceName = output.Name;
-
-					SetActivityOutputParameters(output, outputJson);
-
-					activityJson.Outputs.Add(outputJson);
-				}
-			}
-		}
-
-		public static void SetActivityOutputParameters(Output output, OutputJson outputJson)
-		{
-			if (output.Parameters != null)
-			{
-				outputJson.Parameters = new List<ParameterJson>();
-
-				foreach (Parameter parameter in output.Parameters)
-				{
-					ParameterJson parameterJson = new()
-					{
-						Name = parameter.Name,
-						Type = parameter.Type,
-						Value = parameter.Value
-					};
-
-					outputJson.Parameters.Add(parameterJson);
-				}
-
-				if (outputJson.Parameters.Count == 0)
-				{
-					outputJson.Parameters = null;
-				}
-			}
-		}
-
-		public static void SetSqlServerStoredProcedureDefaults(Activity activity, ActivityJson activityJson, TypePropertyJson typePropertyJson)
-		{
-			if (activity.Type == ActivityTypeEnum.SqlServerStoredProcedure)
-			{
-				typePropertyJson.EnableStaging = null;
-				activityJson.Inputs = null;
-				activityJson.Outputs = null;
-			}
-		}
-
-		public static void SetSqlServerStoredProcedureName(TypePropertyList typeProperty, TypePropertyJson typePropertyJson)
-		{
-			if (typeProperty.StoredProcedure != null)
-			{
-				typePropertyJson.StoredProcedureName = typeProperty.StoredProcedure.Name;
-			}
-		}
-
-		public static void SetSqlServerStoredProcedureParameters(TypePropertyList typeProperty, TypePropertyJson typePropertyJson)
-		{
-			if (typeProperty.StoredProcedure?.StoredProcedureParameters != null)
-			{
-				StoredProcedureParameter[] parameters = typeProperty.StoredProcedure.StoredProcedureParameters.ToArray();
+				StoredProcedureParameter[] parameters = activity.StoredProcedureParameters.ToArray();
 				Dictionary<string, object> StoredProcedureParameters = new();
 
 				foreach (StoredProcedureParameter parameter in parameters)
@@ -484,152 +170,201 @@ namespace Daf.Core.Adf.Generators
 
 				typePropertyJson.StoredProcedureParameters = StoredProcedureParameters;
 			}
+
+			returnJson.Name = activity.Name;
+			returnJson.TypeProperties = typePropertyJson;
+
+			return returnJson;
 		}
 
-		public static void SetSource(TypePropertyList typeProperty, ActivityJson activityJson, TypePropertyJson typePropertyJson)
+		private static LookupJson GetLookupJson(Lookup activity)
 		{
-			if (typeProperty.Source != null)
+			LookupJson returnJson = new();
+
+			LookupTypePropertyJson typePropertyJson = new();
+
+			if (activity.Source != null)
 			{
-				SourceJson sourceJson = new();
-
-				if (typeProperty.Source.Type == DataSourceTypeEnum.JsonSource)
-				{
-					sourceJson.HttpRequestTimeout = null;
-					sourceJson.RequestInterval = null;
-					sourceJson.RequestMethod = null;
-
-					if (typeProperty.Source.StoreSettings != null)
-					{
-						StoreSettings storeSettings = typeProperty.Source.StoreSettings;
-
-						StoreSettingsJson storeSettingsJson = new();
-						storeSettingsJson.Recursive = storeSettings.Recursive.RecursiveValue;
-						storeSettingsJson.Type = storeSettings.Type.ToString();
-						storeSettingsJson.WildcardFileName = storeSettings.WildcardFileName?.WildcardFileNameValue;
-
-						sourceJson.StoreSettings = storeSettingsJson;
-					}
-				}
-				else if (typeProperty.Source.Type == DataSourceTypeEnum.AzureSqlSource)
-				{
-					sourceJson.HttpRequestTimeout = null;
-					sourceJson.RequestInterval = null;
-					sourceJson.RequestMethod = null;
-
-					sourceJson.QueryTimeout = "02:00:00";
-
-					typePropertyJson.EnableStaging = null;
-					activityJson.Inputs = null;
-					activityJson.Outputs = null;
-
-					sourceJson.SqlReaderQuery = typeProperty.Source.SqlQuery.Value;
-				}
-				else if (typeProperty.Source.Type == DataSourceTypeEnum.OdbcSource)
-				{
-					sourceJson.HttpRequestTimeout = null;
-					sourceJson.RequestInterval = null;
-					sourceJson.RequestMethod = null;
-
-					sourceJson.QueryTimeout = "02:00:00";
-
-					sourceJson.Query = new { typeProperty.Source.SqlQuery.Value, Type = "Expression" };
-				}
-				else if (typeProperty.Source.Type == DataSourceTypeEnum.RestSource)
-				{
-					if (typeProperty.Source.AdditionalHeaders != null)
-					{
-						sourceJson.AdditionalHeaders = new Dictionary<string, object>();
-
-						foreach (AdditionalHeader additionalHeader in typeProperty.Source.AdditionalHeaders)
-						{
-							sourceJson.AdditionalHeaders[additionalHeader.Name] = new { additionalHeader.Value, Type = "Expression" };
-						}
-					}
-
-					if (typeProperty.Source.PaginationRules != null)
-					{
-						sourceJson.PaginationRules = new Dictionary<string, string>();
-
-						foreach (PaginationRule paginationRule in typeProperty.Source.PaginationRules)
-						{
-							sourceJson.PaginationRules[nameof(paginationRule.AbsoluteUrl)] = paginationRule.AbsoluteUrl;
-						}
-					}
-				}
-
-				sourceJson.Type = typeProperty.Source.Type.ToString();
-				typePropertyJson.Source = sourceJson;
+				typePropertyJson.Source = GetSourceJson(activity.Source);
 			}
-		}
 
-		public static void SetSink(TypePropertyList typeProperty, TypePropertyJson typePropertyJson)
-		{
-			if (typeProperty.Sink != null)
+			if (activity.LookupDataSet != null)
 			{
-				SinkJson sinkJson = new();
-
-				if (typeProperty.Sink.Type == DataSinkTypeEnum.AzureSqlSink)
-				{
-					sinkJson.FormatSettings = null;
-					sinkJson.StoreSettings = null;
-				}
-
-				sinkJson.Type = typeProperty.Sink.Type.ToString();
-
-				typePropertyJson.Sink = sinkJson;
+				typePropertyJson.Dataset = GetLookupDataSet(activity.LookupDataSet);
 			}
+
+			returnJson.Name = activity.Name;
+			returnJson.TypeProperties = typePropertyJson;
+
+			return returnJson;
 		}
 
-		public static void SetLookupDataSet(TypePropertyList typeProperty, TypePropertyJson typePropertyJson)
+		private static AzureFunctionJson GetAzureFunctionActivityJson(AzureFunction activity)
 		{
-			LookupDataSet lookupDataSet = typeProperty.LookupDataSet;
+			AzureFunctionJson returnJson = new();
 
-			if (lookupDataSet != null)
+			((LinkedServiceNameJson)returnJson.LinkedServiceName).ReferenceName = activity.LinkedService;
+
+			AzureFunctionActivityTypePropertyJson typePropertyJson = new();
+
+			typePropertyJson.FunctionName = activity.FunctionName;
+			typePropertyJson.Method = activity.Method.ToString();
+			typePropertyJson.Body = JsonSerializer.Deserialize<object>(activity.Body);
+
+			returnJson.Name = activity.Name;
+			returnJson.TypeProperties = typePropertyJson;
+
+			return returnJson;
+		}
+
+		private static UntilJson GetUntilJson(Until activity)
+		{
+			UntilJson returnJson = new();
+
+			returnJson.Inputs = GetInputJson(activity);
+			returnJson.Outputs = GetOutputJson(activity);
+
+			UntilTypePropertyJson typePropertyJson = new();
+
+			if (activity.TimeOut != null)
 			{
-				LookupDataSetJson lookupDataSetJson = new();
-
-				lookupDataSetJson.ReferenceName = lookupDataSet.Name;
-
-				SetLookupDataSetParameters(lookupDataSet, lookupDataSetJson);
-
-				typePropertyJson.Dataset = lookupDataSetJson;
+				typePropertyJson.TimeOut = activity.TimeOut;
 			}
-		}
 
-		public static void SetLookupDataSetParameters(LookupDataSet lookupDataSet, LookupDataSetJson lookupDataSetJson)
-		{
-			if (lookupDataSet.Parameters != null)
+			typePropertyJson.Expression = new ExpressionJson()
 			{
-				lookupDataSetJson.Parameters = new List<ParameterJson>();
+				Value = activity.Expression
+			};
 
-				foreach (Parameter parameter in lookupDataSet.Parameters)
-				{
-					ParameterJson parameterJson = new()
-					{
-						Name = parameter.Name,
-						Type = parameter.Type,
-						Value = parameter.Value
-					};
+			typePropertyJson.Activities = GetActivityJsonList(activity.Activities, isInternal: true);
 
-					lookupDataSetJson.Parameters.Add(parameterJson);
-				}
+			returnJson.Name = activity.Name;
+			returnJson.TypeProperties = typePropertyJson;
 
-				if (lookupDataSetJson.Parameters.Count == 0)
-				{
-					lookupDataSetJson.Parameters = null;
-				}
-			}
+			return returnJson;
 		}
 
-		public static void SetTranslator(TypePropertyList typeProperty, TypePropertyJson typePropertyJson)
+		private static WaitJson GetWaitJson(Wait activity)
 		{
-			if (typeProperty.Translator != null)
+			WaitJson returnJson = new();
+
+			WaitTypePropertyJson typePropertyJson = new();
+
+			typePropertyJson.WaitTimeInSeconds = activity.WaitTimeInSeconds;
+
+			returnJson.Name = activity.Name;
+			returnJson.TypeProperties = typePropertyJson;
+
+			return returnJson;
+		}
+
+		private static WebActivityJson GetWebActivityJson(Web activity)
+		{
+			WebActivityJson returnJson = new();
+
+			WebActivityTypePropertyJson typePropertyJson = new();
+
+			typePropertyJson.Method = activity.Method.ToString();
+			typePropertyJson.Url = activity.Url;
+
+			if (activity.Body != null)
+				typePropertyJson.Body = activity.Body;
+			else
+				typePropertyJson.Body = "{}";
+
+			returnJson.Name = activity.Name;
+			returnJson.TypeProperties = typePropertyJson;
+
+			return returnJson;
+		}
+
+		private static SetVariableJson GetSetVariableJson(SetVariable activity)
+		{
+			SetVariableJson returnJson = new();
+
+			SetVariableTypePropertyJson typePropertyJson = new();
+
+			typePropertyJson.VariableName = activity.Variable;
+			typePropertyJson.Value = activity.Value;
+
+			returnJson.Name = activity.Name;
+			returnJson.TypeProperties = typePropertyJson;
+
+			return returnJson;
+		}
+
+		private static IfConditionJson GetIfConditionJson(IfCondition activity)
+		{
+			IfConditionJson returnJson = new();
+
+			IfConditionTypePropertyJson typePropertyJson = new();
+
+			typePropertyJson.Expression = new ExpressionJson()
+			{
+				Value = activity.Expression
+			};
+
+			if (activity.IfTrueActivities != null)
+				typePropertyJson.IfTrueActivities = GetActivityJsonList(activity.IfTrueActivities, isInternal: true);
+
+			if (activity.IfFalseActivities != null)
+				typePropertyJson.IfFalseActivities = GetActivityJsonList(activity.IfFalseActivities, isInternal: true);
+
+			returnJson.Name = activity.Name;
+			returnJson.TypeProperties = typePropertyJson;
+
+			return returnJson;
+		}
+
+		private static ExecutePipelineJson GetExecutePipelineJson(ExecutePipeline activity)
+		{
+			ExecutePipelineJson returnJson = new();
+
+			ExecutePipelineTypePropertyJson typePropertyJson = new();
+
+			typePropertyJson.Pipeline = new {
+				ReferenceName = activity.PipelineName,
+				Type = "PipelineReference"
+			};
+
+			typePropertyJson.Parameters = new();
+
+			foreach (Parameter parameter in activity.Parameters)
+			{
+				ParameterJson parameterJson = new()
+				{
+					Name = parameter.Name,
+					Type = parameter.Type,
+					Value = parameter.Value
+				};
+
+				typePropertyJson.Parameters.Add(parameterJson);
+			}
+
+			typePropertyJson.WaitOnCompletion = activity.WaitOnCompletion;
+
+			returnJson.Name = activity.Name;
+			returnJson.TypeProperties = typePropertyJson;
+
+			return returnJson;
+		}
+
+		private static CopyJson GetCopyJson(Copy activity)
+		{
+			CopyJson returnJson = new();
+
+			CopyTypePropertyJson typePropertyJson = new();
+
+			typePropertyJson.Source = GetSourceJson(activity.Source);
+			typePropertyJson.Sink = GetSinkJson(activity.Sink);
+
+			if (activity.Source.Type == DataSourceTypeEnum.JsonSource && activity.Translator != null)
 			{
 				TranslatorJson translatorJson = new();
-				translatorJson.Type = typeProperty.Translator.Type.ToString();
-				translatorJson.CollectionReference = typeProperty.Translator.CollectionReference;
+				translatorJson.Type = activity.Translator.Type.ToString();
+				translatorJson.CollectionReference = activity.Translator.CollectionReference;
 
-				foreach (Mapping mapping in typeProperty.Translator.Mappings)
+				foreach (Mapping mapping in activity.Translator.Mappings)
 				{
 					MappingJson mappingJson = new();
 
@@ -647,6 +382,194 @@ namespace Daf.Core.Adf.Generators
 				}
 
 				typePropertyJson.Translator = translatorJson;
+			}
+
+			returnJson.Inputs = GetInputJson(activity);
+			returnJson.Outputs = GetOutputJson(activity);
+			returnJson.TypeProperties = typePropertyJson;
+
+			return returnJson;
+		}
+
+		private static List<object> GetInputJson(Activity activity)
+		{
+			List<object> returnList = new();
+
+			foreach (Input input in activity.Inputs)
+			{
+				InputJson inputJson = new();
+
+				inputJson.ReferenceName = input.Name;
+
+				if (input.Parameters != null)
+				{
+					inputJson.Parameters = new List<object>();
+
+					foreach (Parameter parameter in input.Parameters)
+					{
+						ParameterJson parameterJson = new()
+						{
+							Name = parameter.Name,
+							Type = parameter.Type,
+							Value = parameter.Value
+						};
+
+						inputJson.Parameters.Add(parameterJson);
+					}
+
+					if (inputJson.Parameters.Count == 0)
+					{
+						inputJson.Parameters = null;
+					}
+				}
+
+				returnList.Add(inputJson);
+			}
+
+			return returnList;
+		}
+
+		private static List<object> GetOutputJson(Activity activity)
+		{
+			List<object> returnList = new();
+
+			foreach (Output output in activity.Outputs)
+			{
+				OutputJson outputJson = new();
+
+				outputJson.ReferenceName = output.Name;
+
+				if (output.Parameters != null)
+				{
+					outputJson.Parameters = new List<object>();
+
+					foreach (Parameter parameter in output.Parameters)
+					{
+						ParameterJson parameterJson = new()
+						{
+							Name = parameter.Name,
+							Type = parameter.Type,
+							Value = parameter.Value
+						};
+
+						outputJson.Parameters.Add(parameterJson);
+					}
+
+					if (outputJson.Parameters.Count == 0)
+					{
+						outputJson.Parameters = null;
+					}
+				}
+
+				returnList.Add(outputJson);
+			}
+
+			return returnList;
+		}
+
+		private static LookupDataSetJson GetLookupDataSet(LookupDataSet dataSet)
+		{
+			LookupDataSetJson dataSetJson = new();
+
+			if (dataSet != null)
+			{
+				dataSetJson.ReferenceName = dataSet.Name;
+
+				dataSetJson.Parameters = new List<object>();
+
+				foreach (Parameter parameter in dataSet.Parameters)
+				{
+					ParameterJson parameterJson = new()
+					{
+						Name = parameter.Name,
+						Type = parameter.Type,
+						Value = parameter.Value
+					};
+
+					dataSetJson.Parameters.Add(parameterJson);
+				}
+
+				if (dataSetJson.Parameters.Count == 0)
+				{
+					dataSetJson.Parameters = null;
+				}
+			}
+
+			return dataSetJson;
+		}
+
+		private static SourceJson GetSourceJson(Source source)
+		{
+			SourceJson sourceJson;
+
+			switch (source.Type)
+			{
+				// TODO: After ion structure changes make sure no retrieved property here is null, e.g. storeSettings.Recursive.RecursiveValue
+				case DataSourceTypeEnum.JsonSource:
+					StoreSettings storeSettings = source.StoreSettings;
+
+					sourceJson = new JsonSourceJson()
+					{
+						StoreSettings = new StoreSettingsJson()
+						{
+							Type = storeSettings.Type.ToString(),
+							Recursive = storeSettings.Recursive,
+							WildcardFileName = storeSettings.WildcardFileName?.WildcardFileNameValue
+						}
+					};
+					break;
+				case DataSourceTypeEnum.AzureSqlSource:
+					sourceJson = new AzureSqlSourceJson()
+					{
+						SqlReaderQuery = source.SqlQuery
+					};
+					break;
+				case DataSourceTypeEnum.OdbcSource:
+					sourceJson = new OdbcSourceJson()
+					{
+						Query = new { Value = source.SqlQuery, Type = "Expression" }
+					};
+					break;
+				case DataSourceTypeEnum.RestSource:
+				default:
+					RestSourceJson restSourceJson = new();
+
+					if (source.AdditionalHeaders != null)
+					{
+						restSourceJson.AdditionalHeaders = new Dictionary<string, object>();
+
+						foreach (AdditionalHeader additionalHeader in source.AdditionalHeaders)
+						{
+							restSourceJson.AdditionalHeaders[additionalHeader.Name] = new { additionalHeader.Value, Type = "Expression" };
+						}
+					}
+
+					if (source.PaginationRules != null)
+					{
+						restSourceJson.PaginationRules = new Dictionary<string, string>();
+
+						foreach (PaginationRule paginationRule in source.PaginationRules)
+						{
+							restSourceJson.PaginationRules[nameof(paginationRule.AbsoluteUrl)] = paginationRule.AbsoluteUrl;
+						}
+					}
+
+					sourceJson = restSourceJson;
+					break;
+			}
+
+			return sourceJson;
+		}
+
+		private static SinkJson GetSinkJson(Sink sink)
+		{
+			switch (sink.Type)
+			{
+				case DataSinkTypeEnum.AzureSqlSink:
+					return new AzureSqlSinkJson();
+				case DataSinkTypeEnum.JsonSink:
+				default:
+					return new JsonSinkJson();
 			}
 		}
 	}

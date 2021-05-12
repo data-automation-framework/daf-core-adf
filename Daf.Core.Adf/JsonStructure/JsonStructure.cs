@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
-using AzureDataFactoryProjects.JsonConverters;
+using Daf.Core.Adf.JsonConverters;
 using Daf.Core.Adf.IonStructure;
 
 #nullable disable
@@ -12,22 +12,22 @@ namespace Daf.Core.Adf.JsonStructure
 	public class ProjectJson
 	{
 		public string Name { get; set; }
-		public List<PipelineJson> Pipelines { get; set; }
-		public List<DataSetJson> DataSets { get; set; }
-		public List<LinkedServiceJson> LinkedServices { get; set; }
+		public List<object> Pipelines { get; set; }
+		public List<object> DataSets { get; set; }
+		public List<object> LinkedServices { get; set; }
 
 		public ProjectJson()
 		{
-			Pipelines = new List<PipelineJson>();
-			DataSets = new List<DataSetJson>();
-			LinkedServices = new List<LinkedServiceJson>();
+			Pipelines = new List<object>();
+			DataSets = new List<object>();
+			LinkedServices = new List<object>();
 		}
 	}
 
 	public class PipelineJson : IJsonInterface
 	{
 		public string Name { get; set; }
-		public PropertyJson Properties { get; set; }
+		public object Properties { get; set; }
 		public static string Type { get; set; }
 
 		public PipelineJson()
@@ -53,52 +53,20 @@ namespace Daf.Core.Adf.JsonStructure
 
 	public class PropertyJson
 	{
-		public List<ActivityJson> Activities { get; set; }
+		public List<object> Activities { get; set; }
 
 		[JsonConverter(typeof(PipelineParameterConverter))]
-		public List<ParameterJson> Parameters { get; set; }
+		public List<object> Parameters { get; set; }
 
 		[JsonConverter(typeof(PipelineVariableConverter))]
-		public List<VariableJson> Variables { get; set; }
+		public List<object> Variables { get; set; }
 
 		public string[] Annotations { get; set; }
 
 		public PropertyJson()
 		{
-			Activities = new List<ActivityJson>();
+			Activities = new List<object>();
 			Annotations = new string[0];
-		}
-	}
-
-	public class ActivityJson
-	{
-		public string Name { get; set; }
-		public string Type { get; set; }
-		public List<DependsOnJson> DependsOn { get; set; }
-		public PolicyJson Policy { get; set; }
-		public string[] UserProperties { get; set; }
-		public TypePropertyJson TypeProperties { get; set; }
-		public List<InputJson> Inputs { get; set; }
-		public List<OutputJson> Outputs { get; set; }
-		public LinkedServiceNameJson LinkedServiceName { get; set; }
-
-		public ActivityJson()
-		{
-			DependsOn = new List<DependsOnJson>();
-			Inputs = new List<InputJson>();
-			Outputs = new List<OutputJson>();
-			UserProperties = new string[0];
-		}
-	}
-
-	public class DependsOnJson
-	{
-		public string Activity { get; set; }
-		public List<string> DependencyConditions { get; set; }
-
-		public DependsOnJson()
-		{
-			DependencyConditions = new List<string>();
 		}
 	}
 
@@ -139,39 +107,12 @@ namespace Daf.Core.Adf.JsonStructure
 		}
 	}
 
-	public class TypePropertyJson
-	{
-		public string FunctionName { get; set; }
-		public string Method { get; set; }
-		public string Url { get; set; }
-		public object Body { get; set; }
-		public SourceJson Source { get; set; }
-		public SinkJson Sink { get; set; }
-		public TranslatorJson Translator { get; set; }
-		public bool? EnableStaging { get; set; }
-		public string StoredProcedureName { get; set; }
-		public Dictionary<string, object> StoredProcedureParameters { get; set; }
-		public LookupDataSetJson Dataset { get; set; }
-		public ExpressionJson Expression { get; set; }
-		public List<ActivityJson> Activities { get; set; }
-		public List<ActivityJson> IfFalseActivities { get; set; }
-		public List<ActivityJson> IfTrueActivities { get; set; }
-		public ExecutePipelineJson Pipeline { get; set; }
-		[JsonConverter(typeof(PipelineParameterConverter))]
-		public List<ParameterJson> Parameters { get; set; }
-		public bool WaitOnCompletion { get; set; }
-		public string TimeOut { get; set; }
-		public int WaitTimeInSeconds { get; set; }
-		public string VariableName { get; set; }
-		public string Value { get; set; }
-	}
-
-	public class ExecutePipelineJson
+	public class PipelineReferenceJson
 	{
 		public string ReferenceName { get; set; }
 		public string Type { get; set; }
 
-		public ExecutePipelineJson()
+		public PipelineReferenceJson()
 		{
 			Type = "PipelineReference";
 		}
@@ -180,7 +121,7 @@ namespace Daf.Core.Adf.JsonStructure
 	public class LookupDataSetJson
 	{
 		[JsonConverter(typeof(PipelineParameterConverter))]
-		public List<ParameterJson> Parameters { get; set; }
+		public List<object> Parameters { get; set; }
 		public string ReferenceName { get; set; }
 		public string Type { get; set; }
 
@@ -194,18 +135,18 @@ namespace Daf.Core.Adf.JsonStructure
 	{
 		public string Type { get; set; }
 		public string CollectionReference { get; set; }
-		public List<MappingJson> Mappings { get; set; }
+		public List<object> Mappings { get; set; }
 
 		public TranslatorJson()
 		{
-			Mappings = new List<MappingJson>();
+			Mappings = new List<object>();
 		}
 	}
 
 	public class MappingJson
 	{
-		public MappingSourceJson Source { get; set; }
-		public MappingSinkJson Sink { get; set; }
+		public object Source { get; set; }
+		public object Sink { get; set; }
 	}
 
 	public class MappingSourceJson
@@ -217,27 +158,6 @@ namespace Daf.Core.Adf.JsonStructure
 	{
 		public string Name { get; set; }
 		public string Type { get; set; }
-	}
-
-	public class SourceJson
-	{
-		public string Type { get; set; }
-		public string HttpRequestTimeout { get; set; }
-		public string RequestInterval { get; set; }
-		public string RequestMethod { get; set; }
-		public StoreSettingsJson StoreSettings { get; set; }
-		public string SqlReaderQuery { get; set; }
-		public object Query { get; set; }
-		public string QueryTimeout { get; set; }
-		public Dictionary<string, object> AdditionalHeaders { get; set; }
-		public Dictionary<string, string> PaginationRules { get; set; }
-
-		public SourceJson()
-		{
-			HttpRequestTimeout = "00:10:00";
-			RequestInterval = "00.00:00:00.010";
-			RequestMethod = "GET";
-		}
 	}
 
 	public class StoreSettingsJson
@@ -252,29 +172,12 @@ namespace Daf.Core.Adf.JsonStructure
 		}
 	}
 
-	public class SinkJson
-	{
-		public string Type { get; set; }
-		public object StoreSettings { get; set; }
-		public object FormatSettings { get; set; }
-
-		public SinkJson()
-		{
-			StoreSettings = new { Type = "AzureBlobStorageWriteSettings" };
-			FormatSettings = new {
-				Type = "JsonWriteSettings",
-				FilePattern = "arrayOfObjects",
-				QuoteAllText = true
-			};
-		}
-	}
-
 	public class InputJson
 	{
 		public string ReferenceName { get; set; }
 		public string Type { get; set; }
 		[JsonConverter(typeof(PipelineParameterConverter))]
-		public List<ParameterJson> Parameters { get; set; }
+		public List<object> Parameters { get; set; }
 
 		public InputJson()
 		{
@@ -287,7 +190,7 @@ namespace Daf.Core.Adf.JsonStructure
 		public string ReferenceName { get; set; }
 		public string Type { get; set; }
 		[JsonConverter(typeof(PipelineParameterConverter))]
-		public List<ParameterJson> Parameters { get; set; }
+		public List<object> Parameters { get; set; }
 
 		public OutputJson()
 		{
@@ -299,7 +202,7 @@ namespace Daf.Core.Adf.JsonStructure
 	{
 		public string Name { get; set; }
 		public string Type { get; set; }
-		public DataSetPropertyJson Properties { get; set; }
+		public object Properties { get; set; }
 		public DataSetJson()
 		{
 			Type = "Microsoft.DataFactory/factories/datasets";
@@ -308,13 +211,13 @@ namespace Daf.Core.Adf.JsonStructure
 
 	public class DataSetPropertyJson
 	{
-		public LinkedServiceNameJson LinkedServiceName { get; set; }
+		public object LinkedServiceName { get; set; }
 		[JsonConverter(typeof(PipelineParameterConverter))]
-		public List<ParameterJson> Parameters { get; set; }
+		public List<object> Parameters { get; set; }
 		public string[] Annotations { get; set; }
 		public dynamic Schema { get; set; }
 		public string Type { get; set; }
-		public DataSetTypePropertyJson TypeProperties { get; set; }
+		public object TypeProperties { get; set; }
 		public DataSetPropertyJson()
 		{
 			Annotations = new string[0];
@@ -364,7 +267,7 @@ namespace Daf.Core.Adf.JsonStructure
 
 	public class DataSetTypePropertyJson
 	{
-		public LocationJson Location { get; set; }
+		public object Location { get; set; }
 		public dynamic RelativeUrl { get; set; }
 		public string Schema { get; set; }
 		public string Table { get; set; }
@@ -389,7 +292,7 @@ namespace Daf.Core.Adf.JsonStructure
 	{
 		public string Name { get; set; }
 		public string Type { get; set; }
-		public LinkedServicePropertyJson Properties { get; set; }
+		public object Properties { get; set; }
 		public LinkedServiceJson()
 		{
 			Type = "Microsoft.DataFactory/factories/linkedservice";
@@ -400,7 +303,7 @@ namespace Daf.Core.Adf.JsonStructure
 	{
 		public string[] Annotations { get; set; }
 		public string Type { get; set; }
-		public LinkedServiceTypePropertyJson TypeProperties { get; set; }
+		public object TypeProperties { get; set; }
 		public LinkedServicePropertyJson()
 		{
 			Annotations = new string[0];
