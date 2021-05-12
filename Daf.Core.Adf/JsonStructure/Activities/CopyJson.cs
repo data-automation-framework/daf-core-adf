@@ -3,9 +3,8 @@
 
 using System.Collections.Generic;
 using Daf.Core.Adf.IonStructure;
-using Daf.Core.Adf.JsonStructure;
 
-namespace Adf.JsonStructure.Activities
+namespace Daf.Core.Adf.JsonStructure.Activities
 {
 	public class CopyJson : ActivityJson
 	{

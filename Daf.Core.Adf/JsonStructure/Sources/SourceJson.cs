@@ -1,12 +1,11 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright © 2021 Oscar Björhn, Petter Löfgren and contributors
 
-#nullable disable
 using System.Collections.Generic;
 using Daf.Core.Adf.IonStructure;
-using Daf.Core.Adf.JsonStructure;
 
-namespace Adf.JsonStructure.Sources
+#nullable disable
+namespace Daf.Core.Adf.JsonStructure.Sources
 {
 	public abstract class SourceJson
 	{

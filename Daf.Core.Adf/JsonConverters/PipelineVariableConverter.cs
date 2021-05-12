@@ -8,7 +8,7 @@ using System.Text.Json.Serialization;
 using Daf.Core.Adf.IonStructure;
 using Daf.Core.Adf.JsonStructure;
 
-namespace AzureDataFactoryProjects.JsonConverters
+namespace Daf.Core.Adf.JsonConverters
 {
 	public class PipelineVariableConverter : JsonConverter<List<object>>
 	{

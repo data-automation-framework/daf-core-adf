@@ -3,7 +3,7 @@
 
 using Daf.Core.Adf.IonStructure;
 
-namespace Adf.JsonStructure.Activities
+namespace Daf.Core.Adf.JsonStructure.Activities
 {
 	public class WaitJson : ActivityJson
 	{

@@ -5,13 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
-using Adf.JsonStructure;
-using Adf.JsonStructure.Activities;
-using Adf.JsonStructure.Sinks;
-using Adf.JsonStructure.Sources;
-using Adf.JsonStructure.TypeProperties;
 using Daf.Core.Adf.IonStructure;
 using Daf.Core.Adf.JsonStructure;
+using Daf.Core.Adf.JsonStructure.Activities;
+using Daf.Core.Adf.JsonStructure.Sinks;
+using Daf.Core.Adf.JsonStructure.Sources;
+using Daf.Core.Adf.JsonStructure.TypeProperties;
 
 namespace Daf.Core.Adf.Generators
 {

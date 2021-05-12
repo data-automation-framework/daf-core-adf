@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
-using AzureDataFactoryProjects.JsonConverters;
+using Daf.Core.Adf.JsonConverters;
 using Daf.Core.Adf.IonStructure;
 
 #nullable disable

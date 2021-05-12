@@ -2,9 +2,8 @@
 // Copyright © 2021 Oscar Björhn, Petter Löfgren and contributors
 
 using Daf.Core.Adf.IonStructure;
-using Daf.Core.Adf.JsonStructure;
 
-namespace Adf.JsonStructure.Activities
+namespace Daf.Core.Adf.JsonStructure.Activities
 {
 	public class SqlServerStoredProcedureJson : ActivityJson
 	{

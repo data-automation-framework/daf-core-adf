@@ -2,9 +2,7 @@
 // Copyright © 2021 Oscar Björhn, Petter Löfgren and contributors
 
 #nullable disable
-using Daf.Core.Adf.JsonStructure;
-
-namespace Adf.JsonStructure.TypeProperties
+namespace Daf.Core.Adf.JsonStructure.TypeProperties
 {
 	public class LookupTypePropertyJson : TypePropertyJson
 	{

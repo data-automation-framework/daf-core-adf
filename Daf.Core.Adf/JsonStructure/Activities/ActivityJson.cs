@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 
 #nullable disable
-namespace Adf.JsonStructure
+namespace Daf.Core.Adf.JsonStructure.Activities
 {
 	public abstract class ActivityJson
 	{

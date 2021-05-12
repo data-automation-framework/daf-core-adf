@@ -2,7 +2,8 @@
 // Copyright © 2021 Oscar Björhn, Petter Löfgren and contributors
 
 using Daf.Core.Adf.IonStructure;
-namespace Adf.JsonStructure.Activities
+
+namespace Daf.Core.Adf.JsonStructure.Activities
 {
 	public class SetVariableJson : ActivityJson
 	{

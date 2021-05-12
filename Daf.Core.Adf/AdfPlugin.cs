@@ -31,8 +31,8 @@ namespace Daf.Core.Adf
 
 				foreach (AzureDataFactoryProject adfProj in adfRootNode.AzureDataFactoryProjects)
 				{
-					AdfGenerator.DefineAzureDataFactoryJson(adfProj);
-					AdfGenerator.DefinePowerShellDeploymentScript(adfProj.Name);
+					AdfGenerator.CreateAzureDataFactoryJson(adfProj);
+					AdfGenerator.CreatePowerShellDeploymentScript(adfProj.Name);
 				}
 
 				azureDataFactoryProjectTimer.Stop();

@@ -3,10 +3,10 @@
 
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
-using AzureDataFactoryProjects.JsonConverters;
+using Daf.Core.Adf.JsonConverters;
 
 #nullable disable
-namespace Adf.JsonStructure.TypeProperties
+namespace Daf.Core.Adf.JsonStructure.TypeProperties
 {
 	public class ExecutePipelineTypePropertyJson : TypePropertyJson
 	{
