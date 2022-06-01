@@ -101,8 +101,10 @@ namespace Daf.Core.Adf.Generators
 				List<object> dependencies = new();
 				foreach (Dependency dependency in activity.Dependencies)
 				{
-					DependsOnJson dependsOnJson = new();
-					dependsOnJson.Activity = dependency.DependentOnActivity;
+					DependsOnJson dependsOnJson = new()
+					{
+						Activity = dependency.DependentOnActivity
+					};
 
 					DependencyConditionTypeEnum[] conditions = dependency.DependencyConditions.Select(x => x.Type).ToArray();
 
@@ -205,11 +207,12 @@ namespace Daf.Core.Adf.Generators
 
 			((LinkedServiceNameJson)returnJson.LinkedServiceName).ReferenceName = activity.LinkedService;
 
-			AzureFunctionActivityTypePropertyJson typePropertyJson = new();
-
-			typePropertyJson.FunctionName = activity.FunctionName;
-			typePropertyJson.Method = activity.Method.ToString();
-			typePropertyJson.Body = JsonSerializer.Deserialize<object>(activity.Body);
+			AzureFunctionActivityTypePropertyJson typePropertyJson = new()
+			{
+				FunctionName = activity.FunctionName,
+				Method = activity.Method.ToString(),
+				Body = JsonSerializer.Deserialize<object>(activity.Body)
+			};
 
 			returnJson.Name = activity.Name;
 			returnJson.TypeProperties = typePropertyJson;
@@ -219,10 +222,11 @@ namespace Daf.Core.Adf.Generators
 
 		private static UntilJson GetUntilJson(Until activity)
 		{
-			UntilJson returnJson = new();
-
-			returnJson.Inputs = GetInputJson(activity);
-			returnJson.Outputs = GetOutputJson(activity);
+			UntilJson returnJson = new()
+			{
+				Inputs = GetInputJson(activity),
+				Outputs = GetOutputJson(activity)
+			};
 
 			UntilTypePropertyJson typePropertyJson = new();
 
@@ -248,9 +252,10 @@ namespace Daf.Core.Adf.Generators
 		{
 			WaitJson returnJson = new();
 
-			WaitTypePropertyJson typePropertyJson = new();
-
-			typePropertyJson.WaitTimeInSeconds = activity.WaitTimeInSeconds;
+			WaitTypePropertyJson typePropertyJson = new()
+			{
+				WaitTimeInSeconds = activity.WaitTimeInSeconds
+			};
 
 			returnJson.Name = activity.Name;
 			returnJson.TypeProperties = typePropertyJson;
@@ -262,10 +267,11 @@ namespace Daf.Core.Adf.Generators
 		{
 			WebActivityJson returnJson = new();
 
-			WebActivityTypePropertyJson typePropertyJson = new();
-
-			typePropertyJson.Method = activity.Method.ToString();
-			typePropertyJson.Url = activity.Url;
+			WebActivityTypePropertyJson typePropertyJson = new()
+			{
+				Method = activity.Method.ToString(),
+				Url = activity.Url
+			};
 
 			if (activity.Body != null)
 				typePropertyJson.Body = activity.Body;
@@ -282,10 +288,11 @@ namespace Daf.Core.Adf.Generators
 		{
 			SetVariableJson returnJson = new();
 
-			SetVariableTypePropertyJson typePropertyJson = new();
-
-			typePropertyJson.VariableName = activity.Variable;
-			typePropertyJson.Value = activity.Value;
+			SetVariableTypePropertyJson typePropertyJson = new()
+			{
+				VariableName = activity.Variable,
+				Value = activity.Value
+			};
 
 			returnJson.Name = activity.Name;
 			returnJson.TypeProperties = typePropertyJson;
@@ -297,11 +304,12 @@ namespace Daf.Core.Adf.Generators
 		{
 			IfConditionJson returnJson = new();
 
-			IfConditionTypePropertyJson typePropertyJson = new();
-
-			typePropertyJson.Expression = new ExpressionJson()
+			IfConditionTypePropertyJson typePropertyJson = new()
 			{
-				Value = activity.Expression
+				Expression = new ExpressionJson()
+				{
+					Value = activity.Expression
+				}
 			};
 
 			if (activity.IfTrueActivities != null)
@@ -320,14 +328,15 @@ namespace Daf.Core.Adf.Generators
 		{
 			ExecutePipelineJson returnJson = new();
 
-			ExecutePipelineTypePropertyJson typePropertyJson = new();
+			ExecutePipelineTypePropertyJson typePropertyJson = new()
+			{
+				Pipeline = new {
+					ReferenceName = activity.PipelineName,
+					Type = "PipelineReference"
+				},
 
-			typePropertyJson.Pipeline = new {
-				ReferenceName = activity.PipelineName,
-				Type = "PipelineReference"
+				Parameters = new()
 			};
-
-			typePropertyJson.Parameters = new();
 
 			foreach (Parameter parameter in activity.Parameters)
 			{
@@ -353,27 +362,34 @@ namespace Daf.Core.Adf.Generators
 		{
 			CopyJson returnJson = new();
 
-			CopyTypePropertyJson typePropertyJson = new();
-
-			typePropertyJson.Source = GetSourceJson(activity.Source);
-			typePropertyJson.Sink = GetSinkJson(activity.Sink);
+			CopyTypePropertyJson typePropertyJson = new()
+			{
+				Source = GetSourceJson(activity.Source),
+				Sink = GetSinkJson(activity.Sink)
+			};
 
 			if (activity.Source.Type == DataSourceTypeEnum.JsonSource && activity.Translator != null)
 			{
-				TranslatorJson translatorJson = new();
-				translatorJson.Type = activity.Translator.Type.ToString();
-				translatorJson.CollectionReference = activity.Translator.CollectionReference;
+				TranslatorJson translatorJson = new()
+				{
+					Type = activity.Translator.Type.ToString(),
+					CollectionReference = activity.Translator.CollectionReference
+				};
 
 				foreach (Mapping mapping in activity.Translator.Mappings)
 				{
 					MappingJson mappingJson = new();
 
-					MappingSourceJson mappingSourceJson = new();
-					mappingSourceJson.Path = mapping.MappingSource.Path.Replace("@", "@@");
+					MappingSourceJson mappingSourceJson = new()
+					{
+						Path = mapping.MappingSource.Path.Replace("@", "@@")
+					};
 
-					MappingSinkJson mappingSinkJson = new();
-					mappingSinkJson.Name = mapping.MappingSink.Name.Replace("@", "@@");
-					mappingSinkJson.Type = mapping.MappingSink.Type.ToString();
+					MappingSinkJson mappingSinkJson = new()
+					{
+						Name = mapping.MappingSink.Name.Replace("@", "@@"),
+						Type = mapping.MappingSink.Type.ToString()
+					};
 
 					mappingJson.Source = mappingSourceJson;
 					mappingJson.Sink = mappingSinkJson;
@@ -397,9 +413,10 @@ namespace Daf.Core.Adf.Generators
 
 			foreach (Input input in activity.Inputs)
 			{
-				InputJson inputJson = new();
-
-				inputJson.ReferenceName = input.Name;
+				InputJson inputJson = new()
+				{
+					ReferenceName = input.Name
+				};
 
 				if (input.Parameters != null)
 				{
@@ -435,9 +452,10 @@ namespace Daf.Core.Adf.Generators
 
 			foreach (Output output in activity.Outputs)
 			{
-				OutputJson outputJson = new();
-
-				outputJson.ReferenceName = output.Name;
+				OutputJson outputJson = new()
+				{
+					ReferenceName = output.Name
+				};
 
 				if (output.Parameters != null)
 				{
