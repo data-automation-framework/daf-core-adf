@@ -17,8 +17,10 @@ namespace Daf.Core.Adf.Generators
 
 				foreach (LinkedService linkedService in projectNode.LinkedServices)
 				{
-					LinkedServiceJson linkedServiceJson = new();
-					linkedServiceJson.Name = linkedService.Name;
+					LinkedServiceJson linkedServiceJson = new()
+					{
+						Name = linkedService.Name
+					};
 
 					SetLinkedServiceProperties(linkedService, linkedServiceJson);
 
@@ -31,8 +33,10 @@ namespace Daf.Core.Adf.Generators
 
 		public static void SetLinkedServiceProperties(LinkedService linkedService, LinkedServiceJson linkedServiceJson)
 		{
-			LinkedServicePropertyJson linkedServicePropertyJson = new();
-			linkedServicePropertyJson.Type = linkedService.Type.ToString();
+			LinkedServicePropertyJson linkedServicePropertyJson = new()
+			{
+				Type = linkedService.Type.ToString()
+			};
 
 			SetLinkedServiceTypeProperties(linkedService, linkedServicePropertyJson);
 
@@ -41,14 +45,16 @@ namespace Daf.Core.Adf.Generators
 
 		public static void SetLinkedServiceTypeProperties(LinkedService linkedService, LinkedServicePropertyJson linkedServicePropertyJson)
 		{
-			LinkedServiceTypePropertyJson linkedServiceTypePropertyJson = new();
-			linkedServiceTypePropertyJson.Url = linkedService.Url;
-			linkedServiceTypePropertyJson.EnableServerCertificateValidation = linkedService.EnableServerCertificateValidation;
-			linkedServiceTypePropertyJson.AuthenticationType = linkedService.AuthenticationType.ToString();
-			linkedServiceTypePropertyJson.ConnectionString = linkedService.ConnectionString;
-			linkedServiceTypePropertyJson.UserName = linkedService.UserName;
-			linkedServiceTypePropertyJson.FunctionAppUrl = linkedService.FunctionAppUrl;
-			linkedServiceTypePropertyJson.EncryptedCredential = linkedService.EncryptedCredential;
+			LinkedServiceTypePropertyJson linkedServiceTypePropertyJson = new()
+			{
+				Url = linkedService.Url,
+				EnableServerCertificateValidation = linkedService.EnableServerCertificateValidation,
+				AuthenticationType = linkedService.AuthenticationType.ToString(),
+				ConnectionString = linkedService.ConnectionString,
+				UserName = linkedService.UserName,
+				FunctionAppUrl = linkedService.FunctionAppUrl,
+				EncryptedCredential = linkedService.EncryptedCredential
+			};
 
 			linkedServicePropertyJson.TypeProperties = linkedServiceTypePropertyJson;
 		}

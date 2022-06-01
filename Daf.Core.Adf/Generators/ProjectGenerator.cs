@@ -10,8 +10,10 @@ namespace Daf.Core.Adf.Generators
 	{
 		public static ProjectJson SetProjectJson(AzureDataFactoryProject projectNode)
 		{
-			ProjectJson projectJson = new();
-			projectJson.Name = projectNode.Name;
+			ProjectJson projectJson = new()
+			{
+				Name = projectNode.Name
+			};
 
 			PipelineGenerator.SetPipelines(projectNode, projectJson);
 			DataSetGenerator.SetDataSets(projectNode, projectJson);

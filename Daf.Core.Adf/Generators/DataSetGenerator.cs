@@ -18,9 +18,10 @@ namespace Daf.Core.Adf.Generators
 
 				foreach (DataSet dataset in projectNode.DataSets)
 				{
-					DataSetJson datasetJson = new();
-
-					datasetJson.Name = dataset.Name;
+					DataSetJson datasetJson = new()
+					{
+						Name = dataset.Name
+					};
 
 					SetDataSetProperties(dataset, datasetJson);
 
@@ -33,9 +34,10 @@ namespace Daf.Core.Adf.Generators
 
 		public static void SetDataSetProperties(DataSet dataset, DataSetJson datasetJson)
 		{
-			DataSetPropertyJson datasetPropertyJson = new();
-
-			datasetPropertyJson.Type = dataset.Type.ToString();
+			DataSetPropertyJson datasetPropertyJson = new()
+			{
+				Type = dataset.Type.ToString()
+			};
 
 			SetDataSetJsonSchema(dataset, datasetPropertyJson);
 			SetDataSetAzureSqlTableSchema(dataset, datasetPropertyJson);
@@ -102,9 +104,11 @@ namespace Daf.Core.Adf.Generators
 				{
 					foreach (AzureSqlTableColumn azureSqlTableColumn in azureSqlTableSchema.AzureSqlTableColumns)
 					{
-						AzureSqlTableSchemaJson schemaJson = new();
-						schemaJson.Name = azureSqlTableColumn.Name;
-						schemaJson.Type = azureSqlTableColumn.Type.ToString();
+						AzureSqlTableSchemaJson schemaJson = new()
+						{
+							Name = azureSqlTableColumn.Name,
+							Type = azureSqlTableColumn.Type.ToString()
+						};
 
 						if (azureSqlTableColumn.Type is AzureSqlTableColumnTypeEnum.bigint
 								or AzureSqlTableColumnTypeEnum.@int
@@ -132,9 +136,10 @@ namespace Daf.Core.Adf.Generators
 		{
 			if (dataset.LinkedService != null)
 			{
-				LinkedServiceNameJson linkedServiceNameJson = new();
-
-				linkedServiceNameJson.ReferenceName = dataset.LinkedService;
+				LinkedServiceNameJson linkedServiceNameJson = new()
+				{
+					ReferenceName = dataset.LinkedService
+				};
 
 				datasetPropertyJson.LinkedServiceName = linkedServiceNameJson;
 			}
@@ -148,10 +153,11 @@ namespace Daf.Core.Adf.Generators
 
 			if (dataset.RelativeUrl != null && dataset.RelativeUrl.Contains("@"))
 			{
-				DataSetRelativeUrlJson relativeUrlJson = new();
-
-				relativeUrlJson.Type = ValueTypeEnum.Expression.ToString();
-				relativeUrlJson.Value = dataset.RelativeUrl;
+				DataSetRelativeUrlJson relativeUrlJson = new()
+				{
+					Type = ValueTypeEnum.Expression.ToString(),
+					Value = dataset.RelativeUrl
+				};
 
 				datasetTypePropertyJson.RelativeUrl = relativeUrlJson;
 			}
@@ -182,9 +188,10 @@ namespace Daf.Core.Adf.Generators
 		{
 			if (dataset.Location != null)
 			{
-				LocationJson locationJson = new();
-
-				locationJson.Type = dataset.Location.Type.ToString();
+				LocationJson locationJson = new()
+				{
+					Type = dataset.Location.Type.ToString()
+				};
 
 				SetDataSetContainer(dataset, locationJson);
 				SetDataSetFileName(dataset, locationJson);

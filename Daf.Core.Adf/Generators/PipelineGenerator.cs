@@ -17,8 +17,10 @@ namespace Daf.Core.Adf.Generators
 
 				foreach (Pipeline pipeline in projectNode.Pipelines)
 				{
-					PipelineJson pipelineJson = new();
-					pipelineJson.Name = pipeline.Name;
+					PipelineJson pipelineJson = new()
+					{
+						Name = pipeline.Name
+					};
 
 					PropertyJson propertyJson = new();
 

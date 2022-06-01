@@ -24,7 +24,7 @@ namespace Daf.Core.Adf
 			var options = new JsonSerializerOptions
 			{
 				WriteIndented = true,
-				IgnoreNullValues = true,
+				DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
 				PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
 			};
 
